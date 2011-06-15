@@ -1,6 +1,9 @@
+Requirements
+============
+Rails 3+
+
 ActiveRecordQueryTrace
 ======================
-
 Enable plugin to log the source of SQL queries to Rails logger. I made this a plugin versus a Gem so its easier to enable/disable on demand. Otherwise it can cruft up the logs pretty easy.
 
 To disable just comment out the require() in init.rb
