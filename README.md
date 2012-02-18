@@ -3,7 +3,7 @@ Logs the source of execution of all queries to the Rails log. Helpful to track d
 Install
 -------
 
-`gem install active_query_record_trace`
+`gem install active_record_query_trace`
 
 Usage
 -----
@@ -11,7 +11,7 @@ Usage
 Enable it in an initializer:
 
 ```ruby
-ActiveQueryRecordTrace.enabled = true
+ActiveRecordQueryTrace.enabled = true
 ```
 
 
