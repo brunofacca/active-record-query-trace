@@ -11,7 +11,7 @@ module ActiveRecordQueryTrace
 
       def initialize
         super
-        ActiveQueryRecordTrace.enabled = false
+        ActiveRecordQueryTrace.enabled = false
       end
 
       def sql(event)
