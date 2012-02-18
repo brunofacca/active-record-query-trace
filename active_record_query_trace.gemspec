@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'active_record_query_trace'
-  s.version       = '1.0'
+  s.version       = '1.1'
   s.date          = '2011-11-19'
   s.summary       = "Print stack trace of all queries to the Rails log. Helpful to find where queries are being executed in your application."
   s.description   = s.summary
