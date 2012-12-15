@@ -14,6 +14,16 @@ Enable it in an initializer:
 ActiveRecordQueryTrace.enabled = true
 ```
 
+Output
+------
+
+When enabled every query source will be logged like:
+
+```
+  IntuitAccount Load (1.2ms)  SELECT "intuit_accounts".* FROM "intuit_accounts" WHERE "intuit_accounts"."user_id" = 20 LIMIT 1
+Called from: app/views/users/edit.html.haml:78:in `block in _app_views_users_edit_html_haml___1953197429694975654_70177901460360'
+ app/views/users/edit.html.haml:16:in `_app_views_users_edit_html_haml___1953197429694975654_70177901460360'
+```
 
 Requirements
 ------------
