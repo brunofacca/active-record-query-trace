@@ -12,6 +12,10 @@ Enable it in an initializer:
 
 ```ruby
 ActiveRecordQueryTrace.enabled = true
+
+# Optional
+ActiveRecordQueryTrace.level = :app (default)
+ActiveRecordQueryTrace.level = :full (alternate ouput of full backtrace, useful for debugging gems)
 ```
 
 Output
