@@ -5,6 +5,7 @@ module ActiveRecordQueryTrace
   class << self
     attr_accessor :enabled
     attr_accessor :level
+    attr_accessor :lines
   end
 
   module ActiveRecord
@@ -14,11 +15,20 @@ module ActiveRecordQueryTrace
         super
         ActiveRecordQueryTrace.enabled = false
         ActiveRecordQueryTrace.level = :app
+        ActiveRecordQueryTrace.lines = 5
       end
 
       def sql(event)
         if ActiveRecordQueryTrace.enabled
-          debug("\e[1m\e[35m\e[1m\e[47mCalled from:\e[0m " + clean_trace(caller).join("\n "))
+          index = begin
+            if ActiveRecordQueryTrace.lines == 0
+              0..-1
+            else
+              0..(ActiveRecordQueryTrace.lines - 1)
+            end
+          end
+
+          debug("\e[1m\e[35m\e[1m\e[47mCalled from:\e[0m " + clean_trace(caller)[index].join("\n "))
         end
       end
 

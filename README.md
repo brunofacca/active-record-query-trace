@@ -16,6 +16,7 @@ ActiveRecordQueryTrace.enabled = true
 # Optional
 ActiveRecordQueryTrace.level = :app (default)
 ActiveRecordQueryTrace.level = :full (alternate ouput of full backtrace, useful for debugging gems)
+ActiveRecordQueryTrace.lines = 10 # Determines how many lines of the trace to include. Default is 5. Setting to 0 includes entire trace.
 ```
 
 Output
