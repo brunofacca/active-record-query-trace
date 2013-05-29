@@ -12,10 +12,25 @@ Enable it in an initializer:
 
 ```ruby
 ActiveRecordQueryTrace.enabled = true
+```
 
-# Optional
-ActiveRecordQueryTrace.level = :app (default)
-ActiveRecordQueryTrace.level = :full (alternate ouput of full backtrace, useful for debugging gems)
+Options
+_______
+
+There are three levels of debug. 
+
+1. app - includes only files in your app/ directory.
+2. full - includes files in your app as well as rails.
+3. rails - alternate ouput of full backtrace, useful for debugging gems.
+
+```ruby
+ActiveRecordQueryTrace.level = :app # default
+```
+
+Additionally, if you are working with a large app, you may wish to limit the number of lines displayed for each query.
+
+```ruby
+ActiveRecordQueryTrace.lines = 10 # Default is 5. Setting to 0 includes entire trace.
 ```
 
 Output
