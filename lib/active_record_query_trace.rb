@@ -28,7 +28,7 @@ module ActiveRecordQueryTrace
             end
           end
 
-          debug("\e[1m\e[35m\e[1m\e[47mCalled from:\e[0m " + clean_trace(caller)[index].join("\n "))
+          debug(color('Called from: ', MAGENTA, true) + clean_trace(caller)[index].join("\n "))
         end
       end
 
