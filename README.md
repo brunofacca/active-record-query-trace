@@ -3,7 +3,15 @@ Logs the source of execution of all queries to the Rails log. Helpful to track d
 Install
 -------
 
+Install the latest stable release:
+
 `gem install active_record_query_trace`
+
+In Rails, add it to your Gemfile, then restart the server:
+
+```ruby
+gem 'active_record_query_trace'
+```
 
 Usage
 -----
@@ -21,10 +29,16 @@ There are three levels of debug.
 
 1. app - includes only files in your app/ directory.
 2. full - includes files in your app as well as rails.
-3. rails - alternate ouput of full backtrace, useful for debugging gems.
+3. rails - alternate output of full backtrace, useful for debugging gems.
 
 ```ruby
 ActiveRecordQueryTrace.level = :app # default
+```
+
+By default, a backtrace will be logged for every query, even cached queries that do not actually hit the database. You might find it useful not to print the backtrace for cached queries:
+
+```ruby
+ActiveRecordQueryTrace.ignore_cached_queries
 ```
 
 Additionally, if you are working with a large app, you may wish to limit the number of lines displayed for each query.
@@ -40,8 +54,9 @@ When enabled every query source will be logged like:
 
 ```
   IntuitAccount Load (1.2ms)  SELECT "intuit_accounts".* FROM "intuit_accounts" WHERE "intuit_accounts"."user_id" = 20 LIMIT 1
-Called from: app/views/users/edit.html.haml:78:in `block in _app_views_users_edit_html_haml___1953197429694975654_70177901460360'
- app/views/users/edit.html.haml:16:in `_app_views_users_edit_html_haml___1953197429694975654_70177901460360'
+Called from:
+  app/views/users/edit.html.haml:78:in `block in _app_views_users_edit_html_haml___1953197429694975654_70177901460360'
+  app/views/users/edit.html.haml:16:in `_app_views_users_edit_html_haml___1953197429694975654_70177901460360'
 ```
 
 Requirements
