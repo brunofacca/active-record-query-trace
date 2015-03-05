@@ -1,7 +1,6 @@
 Logs the source of execution of all queries to the Rails log. Helpful to track down where queries are being executed in your application, for performance optimizations most likely.
 
-Install
--------
+## Install
 
 Install the latest stable release:
 
@@ -13,8 +12,7 @@ In Rails, add it to your Gemfile, then restart the server:
 gem 'active_record_query_trace'
 ```
 
-Usage
------
+##Usage
 
 Enable it in an initializer:
 
@@ -22,10 +20,9 @@ Enable it in an initializer:
 ActiveRecordQueryTrace.enabled = true
 ```
 
-Options
-_______
+## Options
 
-There are three levels of debug. 
+There are three levels of debug.
 
 1. app - includes only files in your app/ directory.
 2. full - includes files in your app as well as rails.
@@ -47,8 +44,7 @@ Additionally, if you are working with a large app, you may wish to limit the num
 ActiveRecordQueryTrace.lines = 10 # Default is 5. Setting to 0 includes entire trace.
 ```
 
-Output
-------
+## Output
 
 When enabled every query source will be logged like:
 
