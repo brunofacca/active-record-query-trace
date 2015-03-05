@@ -6,6 +6,7 @@ module ActiveRecordQueryTrace
     attr_accessor :enabled
     attr_accessor :level
     attr_accessor :lines
+    attr_accessor :ignore_cached_queries
   end
 
   module ActiveRecord
@@ -16,6 +17,7 @@ module ActiveRecordQueryTrace
         ActiveRecordQueryTrace.enabled = false
         ActiveRecordQueryTrace.level = :app
         ActiveRecordQueryTrace.lines = 5
+        ActiveRecordQueryTrace.ignore_cached_queries = false
       end
 
       def sql(event)
@@ -28,7 +30,11 @@ module ActiveRecordQueryTrace
             end
           end
 
-          debug(color('Called from: ', MAGENTA, true) + clean_trace(caller)[index].join("\n "))
+          payload = event.payload
+          return if payload[:name] == 'SCHEMA'
+          return if ActiveRecordQueryTrace.ignore_cached_queries && payload[:name] == 'CACHE'
+
+          debug(color("Called from: \n  ", MAGENTA, true) + clean_trace(caller)[index].join("\n  "))
         end
       end
 
@@ -41,6 +47,8 @@ module ActiveRecordQueryTrace
         when :app
           Rails.backtrace_cleaner.add_silencer { |line| not line =~ /^app/ }
           Rails.backtrace_cleaner.clean(trace)
+        else
+          raise "Invalid ActiveRecordQueryTrace.level value '#{ActiveRecordQueryTrace.level}' - should be :full, :rails, or :app"
         end
       end
 
