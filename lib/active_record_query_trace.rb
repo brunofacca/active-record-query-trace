@@ -45,7 +45,7 @@ module ActiveRecordQueryTrace
         when :rails
           Rails.respond_to?(:backtrace_cleaner) ? Rails.backtrace_cleaner.clean(trace) : trace
         when :app
-          Rails.backtrace_cleaner.add_silencer { |line| not line =~ /^app/ }
+          Rails.backtrace_cleaner.add_silencer { |line| not line =~ /^(app|lib)/ }
           Rails.backtrace_cleaner.clean(trace)
         else
           raise "Invalid ActiveRecordQueryTrace.level value '#{ActiveRecordQueryTrace.level}' - should be :full, :rails, or :app"
