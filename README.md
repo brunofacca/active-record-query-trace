@@ -35,7 +35,7 @@ ActiveRecordQueryTrace.level = :app # default
 By default, a backtrace will be logged for every query, even cached queries that do not actually hit the database. You might find it useful not to print the backtrace for cached queries:
 
 ```ruby
-ActiveRecordQueryTrace.ignore_cached_queries
+ActiveRecordQueryTrace.ignore_cached_queries = true # Default is false.
 ```
 
 Additionally, if you are working with a large app, you may wish to limit the number of lines displayed for each query.
