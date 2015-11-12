@@ -1,3 +1,9 @@
+## 1.5.2 (2015-11-12)
+
+* Track queries from 'lib' or 'engines' folders. Thanks to @amalkov
+
+* Updates to log formatting to make it look better. Thanks to @carsonreinke
+
 ## 1.5 (2015-09-23)
 
 Merge pull request #13 from mtyeh411/fix_root_trace_filter
