@@ -24,7 +24,7 @@ ActiveRecordQueryTrace.enabled = true
 
 There are three levels of debug.
 
-1. app - includes only files in your app/ directory.
+1. app - includes only files in your app/, lib/, and engines/ directories.
 2. full - includes files in your app as well as rails.
 3. rails - alternate output of full backtrace, useful for debugging gems.
 
