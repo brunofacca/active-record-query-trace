@@ -8,6 +8,7 @@ module ActiveRecordQueryTrace
     attr_accessor :level
     attr_accessor :lines
     attr_accessor :ignore_cached_queries
+    attr_accessor :header_text
   end
 
   module ActiveRecord
@@ -19,6 +20,7 @@ module ActiveRecordQueryTrace
         ActiveRecordQueryTrace.level = :app
         ActiveRecordQueryTrace.lines = 5
         ActiveRecordQueryTrace.ignore_cached_queries = false
+        ActiveRecordQueryTrace.header_text = "  Query Trace > "
 
         if ActiveRecordQueryTrace.level != :app
           # Rails by default silences all backtraces that match Rails::BacktraceCleaner::APP_DIRS_PATTERN
@@ -41,7 +43,7 @@ module ActiveRecordQueryTrace
           return if ActiveRecordQueryTrace.ignore_cached_queries && payload[:name] == 'CACHE'
 
           cleaned_trace = clean_trace(caller)[index].join("\n     from ")
-          debug("  Query Trace > " + cleaned_trace) unless cleaned_trace.blank?
+          debug(ActiveRecordQueryTrace.header_text + cleaned_trace) unless cleaned_trace.blank?
         end
       end
 

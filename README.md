@@ -44,6 +44,13 @@ Additionally, if you are working with a large app, you may wish to limit the num
 ActiveRecordQueryTrace.lines = 10 # Default is 5. Setting to 0 includes entire trace.
 ```
 
+After any SQL query will appear a with the text `  Query Trace >  `. If
+you want to change that text:
+
+```ruby
+ActiveRecordQueryTrace.header_text = '⌚' # This add a clock. Default is '  Query Trace >  '
+```
+
 ## Output
 
 When enabled every query source will be logged like:
