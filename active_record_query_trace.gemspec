@@ -9,6 +9,6 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Cody Caughlan"]
   gem.email         = 'toolbag@gmail.com'
   gem.homepage      = 'https://github.com/ruckus/active-record-query-trace'
-  gem.files         = Dir["**/*"]
+  gem.files         = Dir['lib/**/*']
   gem.license       = 'MIT'
 end

@@ -1,3 +1,7 @@
+## 1.5.4 (2016-10-12)
+
+* Enable colorization of output log - thanks @ihinojal
+
 ## 1.5.2 (2015-11-12)
 
 * Track queries from 'lib' or 'engines' folders. Thanks to @amalkov
