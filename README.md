@@ -44,6 +44,20 @@ Additionally, if you are working with a large app, you may wish to limit the num
 ActiveRecordQueryTrace.lines = 10 # Default is 5. Setting to 0 includes entire trace.
 ```
 
+If you want the output can be colorized with a string of the color or a code. Valid colors are:
+'black', 'red', 'green', 'brown', 'blue', 'purple', 'cyan',
+'gray', 'dark gray', 'light red', 'light green', 'yellow', 'light blue',
+'light purple', 'light cyan', 'white'
+
+```ruby
+ActiveRecordQueryTrace.colorize = false # No colorization(default)
+ActiveRecordQueryTrace.colorize = 'light purple'
+ActiveRecordQueryTrace.colorize = true # Colorize in default color
+ActiveRecordQueryTrace.colorize = 35 # Magenta
+```
+
+
+
 ## Output
 
 When enabled every query source will be logged like:
