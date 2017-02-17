@@ -9,6 +9,14 @@ module ActiveRecordQueryTrace
     attr_accessor :lines
     attr_accessor :ignore_cached_queries
     attr_accessor :colorize
+
+    def logger
+      ActiveRecordQueryTrace::ActiveRecord::LogSubscriber.logger
+    end
+
+    def logger=(new_logger)
+      ActiveRecordQueryTrace::ActiveRecord::LogSubscriber.logger = new_logger
+    end
   end
 
   module ActiveRecord
