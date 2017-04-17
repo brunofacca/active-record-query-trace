@@ -12,7 +12,7 @@ In Rails, add it to your Gemfile, then restart the server:
 gem 'active_record_query_trace'
 ```
 
-##Usage
+## Usage
 
 Enable it in an initializer:
 
