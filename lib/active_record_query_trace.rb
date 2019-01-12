@@ -48,9 +48,9 @@ module ActiveRecordQueryTrace
 
           payload = event.payload
           return if payload[:name] == 'SCHEMA'
-          return if ActiveRecordQueryTrace.ignore_cached_queries && payload[:name] == 'CACHE'
+          return if ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached]
 
-          cleaned_trace = clean_trace(caller)[index].join("\n     from ")
+          cleaned_trace = clean_trace(caller)[index].join("\n     ")
           debug("  Query Trace > " + colorize_text(cleaned_trace)) unless cleaned_trace.blank?
         end
       end
