@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
-require 'version'
+require 'active_record_query_trace/version'
 
 Gem::Specification.new do |gem|
   gem.name          = 'active_record_query_trace'
