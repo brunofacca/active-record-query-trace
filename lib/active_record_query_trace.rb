@@ -31,6 +31,7 @@ module ActiveRecordQueryTrace
     attr_accessor :lines
     attr_accessor :ignore_cached_queries
     attr_accessor :colorize
+    attr_accessor :query_type
   end
 
   class CustomLogSubscriber < ActiveRecord::LogSubscriber
@@ -41,6 +42,7 @@ module ActiveRecordQueryTrace
       ActiveRecordQueryTrace.lines = 5
       ActiveRecordQueryTrace.ignore_cached_queries = false
       ActiveRecordQueryTrace.colorize = false
+      ActiveRecordQueryTrace.query_type = :all
     end
 
     def sql(event)
@@ -61,7 +63,24 @@ module ActiveRecordQueryTrace
       ActiveRecordQueryTrace.enabled \
         && !transaction_begin_or_commit_query?(payload) \
         && !schema_query?(payload) \
-        && !(ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached])
+        && !(ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached]) \
+        && display_backtrace_for_query_type?(payload)
+    end
+
+    def display_backtrace_for_query_type?(payload)
+      invalid_type_msg = 'Invalid ActiveRecordQueryTrace.query_type value ' \
+        "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
+
+      case ActiveRecordQueryTrace.query_type
+      when :all then true
+      when :read then db_read_query?(payload)
+      when :write then !db_read_query?(payload)
+      else raise(invalid_type_msg)
+      end
+    end
+
+    def db_read_query?(payload)
+      payload[:name]&.match(/ Load\Z/)
     end
 
     def fully_formatted_trace
