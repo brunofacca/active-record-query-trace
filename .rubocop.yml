@@ -1,0 +1,26 @@
+require: rubocop-rspec
+
+AllCops:
+  DisplayStyleGuide: true
+  TargetRubyVersion: 2.3
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Style/Documentation:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false

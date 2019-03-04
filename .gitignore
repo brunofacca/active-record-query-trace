@@ -1,2 +1,4 @@
+.byebug_history
 active_record_query_trace-*.gem
+coverage/
 Gemfile.lock
