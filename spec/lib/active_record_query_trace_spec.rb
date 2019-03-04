@@ -135,6 +135,100 @@ describe ActiveRecordQueryTrace do
       end
     end
 
+    describe '.query_type' do
+      before { described_class.enabled = true }
+
+      it 'is set to :all by default' do
+        # Reset options to their default values.
+        described_class::CustomLogSubscriber.new
+        expect(described_class.query_type).to eq(:all)
+      end
+
+      context 'when set to :all' do
+        before { described_class.query_type = :all }
+
+        it 'adds backtrace to SELECT queries' do
+          User.first
+          expect(log).to match(described_class::BACKTRACE_PREFIX)
+        end
+
+        it 'adds backtrace to INSERT queries' do
+          User.create!
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'adds backtrace to UPDATE queries' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.update(created_at: Time.now.utc)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'adds backtrace to DELETE queries' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.destroy
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+      end
+
+      context 'when set to :read' do
+        before { described_class.query_type = :read }
+
+        it 'adds backtrace to SELECT queries' do
+          User.first
+          expect(log).to match(described_class::BACKTRACE_PREFIX)
+        end
+
+        it 'does not add backtrace to INSERT queries' do
+          User.create!
+          expect(log).not_to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'does not add backtrace to UPDATE queries' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.update(created_at: Time.now.utc)
+          expect(log).not_to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'does not add backtrace to DELETE queries' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.destroy
+          expect(log).not_to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+      end
+
+      context 'when set to :write' do
+        before { described_class.query_type = :write }
+
+        it 'does not add backtrace to SELECT queries' do
+          User.first
+          expect(log).not_to match(described_class::BACKTRACE_PREFIX)
+        end
+
+        it 'adds backtrace to INSERT queries' do
+          User.create!
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'adds backtrace to UPDATE queries' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.update(created_at: Time.now.utc)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'adds backtrace to DELETE queries' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.destroy
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+      end
+    end
+
     describe '.lines' do
       let(:line) { "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'" }
       let(:bakctrace) { Array.new(30, line) }

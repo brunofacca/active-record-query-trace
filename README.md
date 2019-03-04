@@ -46,12 +46,23 @@ following [options](#options) to the initializer as well.
 #### Backtrace level
 There are three levels of debug.
 
-1. app - includes only files in your app/, lib/, and engines/ directories.
-2. rails - includes files in your app as well as rails.
-3. full - full backtrace, useful for debugging gems.
+- `:app` - includes only files in your app/, lib/, and engines/ directories;
+- `:rails` - includes files in your app as well as rails;
+- `:full` - full backtrace, useful for debugging gems.
 
 ```ruby
 ActiveRecordQueryTrace.level = :app # default
+```
+
+#### Display the trace only for read or write queries
+You can choose to display the backtrace only for DB reads, writes or both.
+
+- `:all` - display backtrace for all queries;
+- `:write` - display the backtrace only for DB write operations (INSERT, UPDATE, DELETE);
+- `:full` - display backtrace only for DB read operations (SELECT).
+
+```ruby
+ActiveRecordQueryTrace.query_type = :all # default
 ```
 
 #### Ignore cached queries
