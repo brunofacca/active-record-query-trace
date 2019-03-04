@@ -136,7 +136,7 @@ module ActiveRecordQueryTrace
     end
 
     def valid_color_code?(color_code)
-      /\A\d+(;\d+)?\Z/.match?(color_code)
+      /\A\d+(;\d+)?\Z/.match(color_code)
     end
   end
 end

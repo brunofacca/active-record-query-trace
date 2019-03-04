@@ -4,6 +4,7 @@ language: ruby
 # List of Ruby releases: https://www.ruby-lang.org/en/downloads/releases/
 # Maintenance status of each Ruby series https://www.ruby-lang.org/en/downloads/branches/
 rvm:
+  - 2.3.8
   - 2.4.4
   - 2.5.3
   - 2.6.1
@@ -28,6 +29,10 @@ matrix:
   # Some Rails versions do not work with older Ruby versions.
   exclude:
     # Rails >= 6 requires Ruby version >= 2.5.0
+    - rvm: 2.3.8
+      env: RAILS_VERSION=6.0.0.beta2
+    - rvm: 2.3.8
+      env: RAILS_VERSION=master
     - rvm: 2.4.4
       env: RAILS_VERSION=6.0.0.beta2
     - rvm: 2.4.4
