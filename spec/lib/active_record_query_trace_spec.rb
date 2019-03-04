@@ -52,13 +52,13 @@ describe ActiveRecordQueryTrace do
     end
 
     describe '.level' do
-      let(:app_frames) do
+      let(:app_lines) do
         [
           "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'",
           "/projects/my_rails_project/lib/foo.rb:10:in `bar'"
         ]
       end
-      let(:rails_frames) do
+      let(:rails_lines) do
         [
           "/home/username/.rvm/gems/ruby-2.5.3/gems/actionpack-5.2.1.1/lib/action_controller/metal/foo.rb:6:in `bar'",
           "/home/username/.rvm/gems/ruby-2.5.3/gems/activesupport-5.2.2/lib/active_support/subscriber.rb:101:in `foo'",
@@ -73,7 +73,7 @@ describe ActiveRecordQueryTrace do
         # initialize to reset to the default level.l
         described_class::CustomLogSubscriber.new
         described_class.enabled = true
-        allow(log_subscriber).to receive(:original_trace).and_return(app_frames + rails_frames)
+        allow(log_subscriber).to receive(:original_trace).and_return(app_lines + rails_lines)
       end
 
       it 'is set to :app by default' do
@@ -86,11 +86,11 @@ describe ActiveRecordQueryTrace do
           User.create!
         end
 
-        it 'displays all backtrace frames' do
+        it 'displays all backtrace lines' do
           expect(log).to match(
             /
               .*#{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape((app_frames + rails_frames).join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape((app_lines + rails_lines).join("\n" + described_class::INDENTATION))}
             /x
           )
         end
@@ -102,12 +102,12 @@ describe ActiveRecordQueryTrace do
           User.create!
         end
 
-        it 'only displays framework backtrace frames' do
+        it 'only displays framework backtrace lines' do
           expect(log).to match(
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape(rails_frames.join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape(rails_lines.join("\n" + described_class::INDENTATION))}
             /x
           )
         end
@@ -121,14 +121,14 @@ describe ActiveRecordQueryTrace do
 
         # The default settings of Rails' backtrace cleaner replaces full paths
         # in the backtrace with relative paths.
-        let(:app_frames_with_relative_path) { app_frames.map { |f| f.gsub("#{Rails.root}/", '') } }
+        let(:app_lines_with_relative_path) { app_lines.map { |f| f.gsub("#{Rails.root}/", '') } }
 
-        it 'only displays application backtrace frames' do
+        it 'only displays application backtrace lines' do
           expect(log).to match(
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape(app_frames_with_relative_path.join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape(app_lines_with_relative_path.join("\n" + described_class::INDENTATION))}
             /x
           )
         end
@@ -136,8 +136,8 @@ describe ActiveRecordQueryTrace do
     end
 
     describe '.lines' do
-      let(:frame) { "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'" }
-      let(:bakctrace) { Array.new(30, frame) }
+      let(:line) { "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'" }
+      let(:bakctrace) { Array.new(30, line) }
 
       before do
         described_class.enabled = true
@@ -150,6 +150,9 @@ describe ActiveRecordQueryTrace do
         expect(described_class.lines).to eq(5)
       end
 
+      # The following examples also test that the backtrace is not displayed
+      # for transaction begin and commit queries. If it was displayed, the log
+      # would contain three backtraces for each `User.create!` operation.
       [1, 5, 10, 20, 30].each do |lines|
         context "when set to #{lines}" do
           before do
@@ -158,7 +161,7 @@ describe ActiveRecordQueryTrace do
           end
 
           it "displays the last #{lines} #{'line'.pluralize(lines)} of the backlog" do
-            expect(log.scan(frame).size).to eq(lines)
+            expect(log.scan(line).size).to eq(lines)
           end
         end
       end

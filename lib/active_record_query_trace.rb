@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_record/log_subscriber'
-require 'active_support/core_ext/hash/indifferent_access'
 
 module ActiveRecordQueryTrace
   INDENTATION = ' ' * 6
@@ -24,7 +23,7 @@ module ActiveRecordQueryTrace
     light_purple: '1;35',
     white: '1;37',
     light_cyan: '1;36'
-  }.with_indifferent_access.freeze
+  }.freeze
 
   class << self
     attr_accessor :enabled
@@ -32,14 +31,6 @@ module ActiveRecordQueryTrace
     attr_accessor :lines
     attr_accessor :ignore_cached_queries
     attr_accessor :colorize
-
-    def logger
-      ::ActiveRecord::LogSubscriber.logger
-    end
-
-    def logger=(new_logger)
-      ::ActiveRecord::LogSubscriber.logger = new_logger
-    end
   end
 
   class CustomLogSubscriber < ActiveRecord::LogSubscriber
@@ -52,63 +43,73 @@ module ActiveRecordQueryTrace
       ActiveRecordQueryTrace.colorize = false
     end
 
-    # TODO: refactor this method and re-enable the following cops.
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/PerceivedComplexity
     def sql(event)
-      return unless ActiveRecordQueryTrace.enabled
-
-      index = begin
-        if ActiveRecordQueryTrace.lines.zero?
-          0..-1
-        else
-          0..(ActiveRecordQueryTrace.lines - 1)
-        end
-      end
-
       payload = event.payload
-      return if payload[:name] == 'SCHEMA' \
-        || payload[:sql] == 'begin transaction' \
-        || payload[:sql] == 'commit transaction'
-      return if ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached]
+      return unless display_backtrace?(payload)
 
-      cleaned_trace = clean_trace(original_trace)[index].join("\n" + INDENTATION)
-      debug(colorize_text(BACKTRACE_PREFIX + cleaned_trace)) unless cleaned_trace.blank?
+      setup_backtrace_cleaner
+
+      trace = fully_formatted_trace # Memoize
+      debug(trace) unless trace.blank?
     end
 
-    def clean_trace(trace)
-      # Rails relies on backtrace cleaner to set the application root directory
-      # filter the problem is that the backtrace cleaner is initialized before
-      # the application this ensures that the value of `root` used by the filter
-      # is set to the application root
-      if Rails.backtrace_cleaner.instance_variable_get(:@root) == '/'
-        Rails.backtrace_cleaner.instance_variable_set :@root, Rails.root.to_s
-      end
+    attach_to :active_record
 
-      case ActiveRecordQueryTrace.level
-      when :full
-        trace
-      when :rails
-        # Rails by default silences all backtraces that *do not* match
-        # Rails::BacktraceCleaner::APP_DIRS_PATTERN. In other words, the default
-        # silencer filters out all framework backtrace frames, leaving only the
-        # application frames.
-        Rails.backtrace_cleaner.remove_silencers!
-        Rails.backtrace_cleaner.add_silencer { |line| line =~ %r{^(app|lib|engines)/} }
-        Rails.backtrace_cleaner.clean(trace)
-      when :app
-        Rails.respond_to?(:backtrace_cleaner) ? Rails.backtrace_cleaner.clean(trace) : trace
-      else
-        raise "Invalid ActiveRecordQueryTrace.level value '#{ActiveRecordQueryTrace.level}' " \
-              '- should be :full, :rails, or :app'
-      end
+    private
+
+    def display_backtrace?(payload)
+      ActiveRecordQueryTrace.enabled \
+        && !transaction_begin_or_commit_query?(payload) \
+        && !schema_query?(payload) \
+        && !(ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached])
     end
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/PerceivedComplexity
+
+    def fully_formatted_trace
+      cleaned_trace = clean_trace(lines_to_display)
+      return if cleaned_trace.blank?
+      stringified_trace = BACKTRACE_PREFIX + cleaned_trace.join("\n" + INDENTATION)
+      colorize_text(stringified_trace)
+    end
+
+    def lines_to_display
+      ActiveRecordQueryTrace.lines.zero? ? original_trace : original_trace.first(ActiveRecordQueryTrace.lines)
+    end
+
+    def transaction_begin_or_commit_query?(payload)
+      payload[:sql] == 'begin transaction' || payload[:sql] == 'commit transaction'
+    end
+
+    def schema_query?(payload)
+      payload[:name] == 'SCHEMA'
+    end
+
+    def clean_trace(full_trace)
+      invalid_level_msg = 'Invalid ActiveRecordQueryTrace.level value ' \
+              "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
+      raise(invalid_level_msg) unless %i[full app rails].include?(ActiveRecordQueryTrace.level)
+
+      ActiveRecordQueryTrace.level == :full ? full_trace : Rails.backtrace_cleaner.clean(full_trace)
+    end
+
+    # Rails by default silences all backtraces that *do not* match
+    # Rails::BacktraceCleaner::APP_DIRS_PATTERN. In other words, the default
+    # silencer filters out all framework backtrace lines, leaving only the
+    # application lines.
+    def setup_backtrace_cleaner
+      setup_backtrace_cleaner_path
+      return unless ActiveRecordQueryTrace.level == :rails
+      Rails.backtrace_cleaner.remove_silencers!
+      Rails.backtrace_cleaner.add_silencer { |line| line.match(%r{^(app|lib|engines)/}) }
+    end
+
+    # Rails relies on backtrace cleaner to set the application root directory
+    # filter. The problem is that the backtrace cleaner is initialized before
+    # this gem. This ensures that the value of `root` used by the filter
+    # is correct.
+    def setup_backtrace_cleaner_path
+      return unless Rails.backtrace_cleaner.instance_variable_get(:@root) == '/'
+      Rails.backtrace_cleaner.instance_variable_set :@root, Rails.root.to_s
+    end
 
     # Allow query to be colorized in the terminal
     def colorize_text(text)
@@ -116,17 +117,13 @@ module ActiveRecordQueryTrace
       "\e[#{color_code}m#{text}\e[0m"
     end
 
-    attach_to :active_record
-
-    private
-
     # Wrapper used for testing purposes.
     def original_trace
       caller
     end
 
     def color_code
-      # Backward compatibility with string color names
+      # Backward compatibility for string color names with space as word separator.
       color_code =
         case ActiveRecordQueryTrace.colorize
         when Symbol then COLORS[ActiveRecordQueryTrace.colorize]
