@@ -216,13 +216,26 @@ describe ActiveRecordQueryTrace do
             /xm
           end
 
-          before do
-            described_class.colorize = color_name
-            User.create!
+          context 'with a symbol as the color name and underscore as word separator' do
+            before do
+              described_class.colorize = color_name
+              User.create!
+            end
+
+            it 'displays the backtrace with the selected color then resets to the default color' do
+              expect(log).to match(regexp)
+            end
           end
 
-          it 'displays the backtrace with the selected color then resets to the default color' do
-            expect(log).to match(regexp)
+          context 'with a string as the color name and space as word separator' do
+            before do
+              described_class.colorize = color_name.to_s.tr('_', "\s") # e.g., 'light purple'
+              User.create!
+            end
+
+            it 'displays the backtrace with the selected color then resets to the default color' do
+              expect(log).to match(regexp)
+            end
           end
         end
       end
