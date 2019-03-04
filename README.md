@@ -16,7 +16,7 @@ D, [2019-03-03T19:50:41.062492 #25560] DEBUG -- : Query Trace:
 ```
 
 ## Requirements
-- Ruby 2.4, 2.5 or 2.6;
+- Ruby >= 2.3;
 - Rails/ActiveRecord 4.2, 5.2, or 6 (can be used with or without Rails).
 
 ## Usage
