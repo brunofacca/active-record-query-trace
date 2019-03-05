@@ -32,6 +32,7 @@ module ActiveRecordQueryTrace
     attr_accessor :ignore_cached_queries
     attr_accessor :colorize
     attr_accessor :query_type
+    attr_accessor :suppress_logging_of_db_reads
   end
 
   class CustomLogSubscriber < ActiveRecord::LogSubscriber
@@ -43,6 +44,7 @@ module ActiveRecordQueryTrace
       ActiveRecordQueryTrace.ignore_cached_queries = false
       ActiveRecordQueryTrace.colorize = false
       ActiveRecordQueryTrace.query_type = :all
+      ActiveRecordQueryTrace.suppress_logging_of_db_reads = false
     end
 
     def sql(event)
@@ -59,13 +61,19 @@ module ActiveRecordQueryTrace
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
+    # TODO: refactor and remove rubocop:disable comments.
     def display_backtrace?(payload)
       ActiveRecordQueryTrace.enabled \
         && !transaction_begin_or_commit_query?(payload) \
         && !schema_query?(payload) \
         && !(ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached]) \
+        && !(ActiveRecordQueryTrace.suppress_logging_of_db_reads && db_read_query?(payload)) \
         && display_backtrace_for_query_type?(payload)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def display_backtrace_for_query_type?(payload)
       invalid_type_msg = 'Invalid ActiveRecordQueryTrace.query_type value ' \
@@ -80,22 +88,23 @@ module ActiveRecordQueryTrace
     end
 
     def db_read_query?(payload)
-      payload[:name]&.match(/ Load\Z/)
+      !payload[:sql].match(/(INSERT|UPDATE|DELETE)/)
     end
 
     def fully_formatted_trace
-      cleaned_trace = clean_trace(lines_to_display)
+      cleaned_trace = clean_trace(original_trace)
       return if cleaned_trace.blank?
-      stringified_trace = BACKTRACE_PREFIX + cleaned_trace.join("\n" + INDENTATION)
+      stringified_trace = BACKTRACE_PREFIX + lines_to_display(cleaned_trace).join("\n" + INDENTATION)
       colorize_text(stringified_trace)
     end
 
-    def lines_to_display
-      ActiveRecordQueryTrace.lines.zero? ? original_trace : original_trace.first(ActiveRecordQueryTrace.lines)
+    # Must be called after the backtrace cleaner.
+    def lines_to_display(full_trace)
+      ActiveRecordQueryTrace.lines.zero? ? full_trace : full_trace.first(ActiveRecordQueryTrace.lines)
     end
 
     def transaction_begin_or_commit_query?(payload)
-      payload[:sql] == 'begin transaction' || payload[:sql] == 'commit transaction'
+      payload[:sql].match(/\A(begin transaction|commit transaction|BEGIN|COMMIT)\Z/)
     end
 
     def schema_query?(payload)
@@ -107,7 +116,11 @@ module ActiveRecordQueryTrace
               "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
       raise(invalid_level_msg) unless %i[full app rails].include?(ActiveRecordQueryTrace.level)
 
-      ActiveRecordQueryTrace.level == :full ? full_trace : Rails.backtrace_cleaner.clean(full_trace)
+      trace = ActiveRecordQueryTrace.level == :full ? full_trace : Rails.backtrace_cleaner.clean(full_trace)
+      # We cant use a Rails::BacktraceCleaner filter to display only the relative
+      # path of application trace lines because it breaks the silencer that selects
+      # the lines to display or hide based on whether they include `Rails.root`.
+      trace.map { |line| line.gsub("#{Rails.root}/", '') }
     end
 
     # Rails by default silences all backtraces that *do not* match
@@ -117,8 +130,11 @@ module ActiveRecordQueryTrace
     def setup_backtrace_cleaner
       setup_backtrace_cleaner_path
       return unless ActiveRecordQueryTrace.level == :rails
+      Rails.backtrace_cleaner.remove_filters!
       Rails.backtrace_cleaner.remove_silencers!
-      Rails.backtrace_cleaner.add_silencer { |line| line.match(%r{^(app|lib|engines)/}) }
+      Rails.backtrace_cleaner.add_silencer do |line|
+        line.match(%r{#{Regexp.escape(Rails.root.to_s)}(?!/vendor)})
+      end
     end
 
     # Rails relies on backtrace cleaner to set the application root directory
@@ -159,5 +175,30 @@ module ActiveRecordQueryTrace
     def valid_color_code?(color_code)
       /\A\d+(;\d+)?\Z/.match(color_code)
     end
+  end
+end
+
+# The following code is used to suppress specific entries from the log. The
+# "around alias" technique is used to allow `ActiveSupport::LogSubscriber#debug`
+# to be overwritten while preserving the original version, which can still be
+# called.
+#
+# I would prefer using Module#prepend here, but alias_method does not work if
+# called from within a prepended module.
+#
+# Note that:
+# - #debug is used to log queries but also other things, do not mess it up.
+# - Some queries include both SELECT and a write operation such as INSERT,
+# UPDATE or DELETE. That means that checking for the presence of SELECT is not
+# enough to ensure it is not a write query.
+#
+# TODO: move to a separate file.
+ActiveSupport::LogSubscriber.class_eval do
+  alias_method :original_debug, :debug
+
+  def debug(*args, &block)
+    return if ActiveRecordQueryTrace.suppress_logging_of_db_reads \
+      && args.first !~ /(INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX})/
+    original_debug(*args, &block)
   end
 end

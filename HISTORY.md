@@ -1,3 +1,28 @@
+## 1.6 (2019-03-05)
+
+* Fix a bug in the `.ignore_cached_queries` option (#30);
+
+* Add `.query_type` option to display the trace only for DB read or write queries;
+
+* Add `.suppress_logging_of_db_reads` option. When enabled, all DB read queries 
+(SELECT) are suppressed from the log;
+
+* Refactor in an attempt to make the code easier to read, test and maintain;
+
+* Setup RSpec and SQLite 3 with in-memory DB for testing;
+
+* Setup Rubocop and fix all offenses;
+
+* Setup Travis CI to test the project with multiple Ruby and Rails versions;
+
+* Drop support for Rails 3 and Ruby 2.2;
+
+* Remove Gemfile.lock from the repository to prevent dependency issues;
+
+* Improve and expand README;
+
+* Other minor improvements.
+
 ## 1.5.4 (2016-10-12)
 
 * Enable colorization of output log - thanks @ihinojal
