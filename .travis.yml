@@ -14,8 +14,9 @@ rvm:
 # List of Rails releases: https://rubygems.org/gems/rails/versions
 # Maintenance status of each Rails series: https://guides.rubyonrails.org/maintenance_policy.html
 env:
-  - RAILS_VERSION=4.2.11
-  - RAILS_VERSION=5.2.2
+  - RAILS_VERSION=4.0.0 # If we say the gem supports Rails >= 4, it should be tested with 4.0.0 as well.
+  - RAILS_VERSION="~> 4"
+  - RAILS_VERSION="~> 5"
   - RAILS_VERSION=6.0.0.beta2
   - RAILS_VERSION=master
 matrix:
@@ -37,9 +38,18 @@ matrix:
       env: RAILS_VERSION=6.0.0.beta2
     - rvm: 2.4.4
       env: RAILS_VERSION=master
-    # I was unable to get Ruby head to work with Bundler < 2, which is required by Rails 4.2.
+    # I was unable to get Ruby head to work with Bundler < 2, which is required by Rails ~> 4
     - rvm: ruby-head
-      env: RAILS_VERSION=4.2.11
+      env: RAILS_VERSION="~> 4"
+    # Rails 4.0.0 only works with Ruby 2.3.8
+    - rvm: 2.4.4
+      env: RAILS_VERSION=4.0.0
+    - rvm: 2.5.3
+      env: RAILS_VERSION=4.0.0
+    - rvm: 2.6.1
+      env: RAILS_VERSION=4.0.0
+    - rvm: ruby-head
+      env: RAILS_VERSION=4.0.0
 # See https://docs.travis-ci.com/user/caching/#bundler
 cache: bundler
 sudo: false
