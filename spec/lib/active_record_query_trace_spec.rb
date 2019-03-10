@@ -52,12 +52,6 @@ describe ActiveRecordQueryTrace do
     end
 
     describe '.level' do
-      let(:app_lines) do
-        [
-          "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'",
-          "/projects/my_rails_project/lib/foo.rb:10:in `bar'"
-        ]
-      end
       let(:rails_lines) do
         [
           "/home/username/.rvm/gems/ruby-2.5.3/gems/actionpack-5.2.1.1/lib/action_controller/metal/foo.rb:6:in `bar'",
@@ -65,15 +59,25 @@ describe ActiveRecordQueryTrace do
           "/home/username/.rvm/gems/ruby-2.5.3/gems/puma-3.12.0/lib/puma/server.rb:332:in `block in run'"
         ]
       end
+      let(:app_lines) do
+        [
+          "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'",
+          "/projects/my_rails_project/lib/foo.rb:10:in `bar'"
+        ]
+      end
+      # The default settings of Rails' backtrace cleaner replaces full paths
+      # in the backtrace with relative paths.
+      let(:app_lines_with_relative_path) { app_lines.map { |f| f.gsub("#{Rails.root}/", '') } }
 
       before do
-        # Reset to the default filters and silencers set by Rails' backtrace cleaner.
-        Rails.instance_variable_set(:@backtrace_cleaner, Rails::BacktraceCleaner.new)
         # The first before block of this spec sets level to :full. Here we call
-        # initialize to reset to the default level.l
-        described_class::CustomLogSubscriber.new
+        # initialize to reset to the default level and call setup_backtrace_cleaner_path
+        # to setup the BacktraceCleaner.
+        described_class::CustomLogSubscriber.new.send(:setup_backtrace_cleaner_path)
         described_class.enabled = true
         allow(log_subscriber).to receive(:original_trace).and_return(app_lines + rails_lines)
+        # Reset to the default filters and silencers set by Rails' backtrace cleaner.
+        Rails.instance_variable_set(:@backtrace_cleaner, Rails::BacktraceCleaner.new)
       end
 
       it 'is set to :app by default' do
@@ -89,8 +93,9 @@ describe ActiveRecordQueryTrace do
         it 'displays all backtrace lines' do
           expect(log).to match(
             /
-              .*#{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape((app_lines + rails_lines).join("\n" + described_class::INDENTATION))}
+              .*
+              #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
+              #{Regexp.escape((app_lines_with_relative_path + rails_lines).join("\n" + described_class::INDENTATION))}
             /x
           )
         end
@@ -118,10 +123,6 @@ describe ActiveRecordQueryTrace do
           described_class.level = :app
           User.create!
         end
-
-        # The default settings of Rails' backtrace cleaner replaces full paths
-        # in the backtrace with relative paths.
-        let(:app_lines_with_relative_path) { app_lines.map { |f| f.gsub("#{Rails.root}/", '') } }
 
         it 'only displays application backtrace lines' do
           expect(log).to match(
@@ -230,12 +231,12 @@ describe ActiveRecordQueryTrace do
     end
 
     describe '.lines' do
-      let(:line) { "/projects/my_rails_project/app/controllers/users_controller.rb:10:in `index'" }
-      let(:bakctrace) { Array.new(30, line) }
+      let(:line) { "app/controllers/users_controller.rb:10:in `index'" }
+      let(:backtrace) { Array.new(30, line) }
 
       before do
         described_class.enabled = true
-        allow(log_subscriber).to receive(:original_trace).and_return(bakctrace)
+        allow(log_subscriber).to receive(:original_trace).and_return(backtrace)
       end
 
       it 'is set to 5 by default' do
@@ -334,6 +335,72 @@ describe ActiveRecordQueryTrace do
               expect(log).to match(regexp)
             end
           end
+        end
+      end
+    end
+
+    describe '.suppress_logging_of_db_reads' do
+      before { described_class.enabled = true }
+
+      it 'is disabled by default' do
+        # Reset options to their default values.
+        described_class::CustomLogSubscriber.new
+        expect(described_class.suppress_logging_of_db_reads).to eq(false)
+      end
+
+      context 'when enabled' do
+        before { described_class.suppress_logging_of_db_reads = true }
+
+        it 'completely suppresses the logging of SELECT queries' do
+          User.first
+          expect(log).not_to match(/(SELECT|#{described_class::BACKTRACE_PREFIX})/)
+        end
+
+        it 'allows INSERT queries to be normally logged' do
+          User.create!
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'allows UPDATE queries to be normally logged' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.update(created_at: Time.now.utc)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'allows DELETE queries to be normally logged' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.destroy
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+      end
+
+      context 'when disabled' do
+        before { described_class.suppress_logging_of_db_reads = false }
+
+        it 'allows SELECT queries to be normally logged' do
+          User.first
+          expect(log).to match(/SELECT.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'allows INSERT queries to be normally logged' do
+          User.create!
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'allows UPDATE queries to be normally logged' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.update(created_at: Time.now.utc)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+        end
+
+        it 'allows DELETE queries to be normally logged' do
+          User.create!
+          logger_io.truncate(0)
+          User.last.destroy
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
         end
       end
     end
