@@ -12,7 +12,7 @@ rails_version =
     # Default version, required for running tests locally without setting ENV['RAILS_VERSION'].
     '>= 5.2.2'
   else
-    "~> #{ENV['RAILS_VERSION']}"
+    ENV['RAILS_VERSION']
   end
 
 gem 'rails', rails_version
