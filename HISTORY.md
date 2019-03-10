@@ -1,3 +1,8 @@
+## 1.6.1 (2019-03-10)
+
+* Minor fixes and improvements such as adding Rails 4.0.0 to the CI and adding
+dependency versions in `gemspec`.
+
 ## 1.6 (2019-03-05)
 
 * Fix a bug in the `.ignore_cached_queries` option (#30);
