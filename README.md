@@ -11,8 +11,8 @@ D, [2019-03-03T19:50:41.062492 #25560] DEBUG -- : Query Trace:
       app/models/concerns/is_active.rb:11:in `active?'
       app/models/user.rb:67:in `active?'
       app/decorators/concerns/status_methods.rb:42:in `colored_status'
-      app/views/platform/staff_space/shared/companies/_user.html.slim:28:in `block in _app_views_users_html_slim___2427456029761612502_70304705622200'
-      app/views/platform/staff_space/shared/companies/_user.html.slim:27:in `_app_views_users_html_slim___2427456029761612502_70304705622200'
+      app/views/shared/companies/_user.html.slim:28:in `block in _app_views_users_html_slim___2427456029761612502_70304705622200'
+      app/views/shared/companies/_user.html.slim:27:in `_app_views_users_html_slim___2427456029761612502_70304705622200'
 ```
 
 ## Requirements
@@ -34,8 +34,8 @@ combination of the following [options](#options) to the initializer as well.
 
     ```ruby
     if Rails.env.development?
-     ActiveRecordQueryTrace.enabled = true
-     # Optional: other gem config options go here
+      ActiveRecordQueryTrace.enabled = true
+      # Optional: other gem config options go here
     end
     ```
 
