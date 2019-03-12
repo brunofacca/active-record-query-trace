@@ -35,7 +35,7 @@ module ActiveRecordQueryTrace
     attr_accessor :suppress_logging_of_db_reads
   end
 
-  class CustomLogSubscriber < ActiveRecord::LogSubscriber
+  class CustomLogSubscriber < ActiveRecord::LogSubscriber # rubocop:disable Metrics/ClassLength
     def initialize
       super
       ActiveRecordQueryTrace.enabled = false
@@ -129,11 +129,15 @@ module ActiveRecordQueryTrace
     # application lines.
     def setup_backtrace_cleaner
       setup_backtrace_cleaner_path
-      return unless ActiveRecordQueryTrace.level == :rails
-      Rails.backtrace_cleaner.remove_filters!
-      Rails.backtrace_cleaner.remove_silencers!
-      Rails.backtrace_cleaner.add_silencer do |line|
-        line.match(%r{#{Regexp.escape(Rails.root.to_s)}(?!/vendor)})
+      return if ActiveRecordQueryTrace.level == :full
+
+      remove_filters_and_silencers
+
+      case ActiveRecordQueryTrace.level
+      when :app
+        Rails.backtrace_cleaner.add_silencer { |line| !line.match(rails_root_regexp) }
+      when :rails
+        Rails.backtrace_cleaner.add_silencer { |line| line.match(rails_root_regexp) }
       end
     end
 
@@ -144,6 +148,11 @@ module ActiveRecordQueryTrace
     def setup_backtrace_cleaner_path
       return unless Rails.backtrace_cleaner.instance_variable_get(:@root) == '/'
       Rails.backtrace_cleaner.instance_variable_set :@root, Rails.root.to_s
+    end
+
+    def remove_filters_and_silencers
+      Rails.backtrace_cleaner.remove_filters!
+      Rails.backtrace_cleaner.remove_silencers!
     end
 
     # Allow query to be colorized in the terminal
@@ -174,6 +183,12 @@ module ActiveRecordQueryTrace
 
     def valid_color_code?(color_code)
       /\A\d+(;\d+)?\Z/.match(color_code)
+    end
+
+    # This cannot be set in a constant as Rails.root is not yet available when
+    # this file is loaded.
+    def rails_root_regexp
+      %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
     end
   end
 end

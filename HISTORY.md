@@ -1,3 +1,11 @@
+## 1.6.2 (2019-03-12)
+
+* Improve backtrace cleaner silencers for `:app` level. When .level is set to
+`:app`, only display files within `Rails.root`. When set to `:rails`, only
+display files outside of `Rails.root`;
+
+* Add mininum Ruby version to gemspec.
+
 ## 1.6.1 (2019-03-10)
 
 * Minor fixes and improvements such as adding Rails 4.0.0 to the CI and adding
