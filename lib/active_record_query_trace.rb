@@ -201,7 +201,7 @@ module ActiveRecordQueryTrace
     # This cannot be set in a constant as Rails.root is not yet available when
     # this file is loaded.
     def rails_root_regexp
-      %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
+      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
     end
   end
 end
