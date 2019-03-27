@@ -88,7 +88,7 @@ module ActiveRecordQueryTrace
     end
 
     def db_read_query?(payload)
-      !payload[:sql].match(/(INSERT|UPDATE|DELETE)/)
+      !payload[:sql] =~ /\ASELECT\s/i
     end
 
     def fully_formatted_trace
