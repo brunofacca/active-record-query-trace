@@ -87,7 +87,7 @@ module ActiveRecordQueryTrace
     end
 
     def db_read_query?(payload)
-      payload[:sql] !~ /(INSERT|UPDATE|DELETE)/
+      payload[:sql] !~ /INSERT|UPDATE|DELETE/
     end
 
     def fully_formatted_trace
@@ -103,7 +103,7 @@ module ActiveRecordQueryTrace
     end
 
     def transaction_begin_or_commit_query?(payload)
-      payload[:sql] =~ /\A(begin transaction|commit transaction|BEGIN|COMMIT)\Z/
+      payload[:sql] =~ /\Abegin transaction|commit transaction|BEGIN|COMMIT\Z/
     end
 
     def schema_query?(payload)
@@ -186,7 +186,7 @@ module ActiveRecordQueryTrace
     end
 
     def valid_color_code?(color_code)
-      /\A\d+(;\d+)?\Z/ =~ color_code
+      /\A\d+(?:;\d+)?\Z/ =~ color_code
     end
 
     # This cannot be set in a constant as Rails.root is not yet available when
@@ -217,7 +217,7 @@ ActiveSupport::LogSubscriber.class_eval do
 
   def debug(*args, &block)
     return if ActiveRecordQueryTrace.suppress_logging_of_db_reads \
-      && args.first !~ /(INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX})/
+      && args.first !~ /INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX}/
     original_debug(*args, &block)
   end
 end
