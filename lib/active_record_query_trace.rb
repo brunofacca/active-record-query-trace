@@ -124,7 +124,7 @@ module ActiveRecordQueryTrace
       # We cant use a Rails::BacktraceCleaner filter to display only the relative
       # path of application trace lines because it breaks the silencer that selects
       # the lines to display or hide based on whether they include `Rails.root`.
-      trace.map { |line| line.gsub("#{Rails.root}/", '') }
+      trace.map { |line| line.sub("#{Rails.root}/", '') }
     end
 
     # Rails by default silences all backtraces that *do not* match
