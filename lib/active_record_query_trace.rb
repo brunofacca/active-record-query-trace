@@ -76,14 +76,13 @@ module ActiveRecordQueryTrace
     # rubocop:enable Metrics/PerceivedComplexity
 
     def display_backtrace_for_query_type?(payload)
-      invalid_type_msg = 'Invalid ActiveRecordQueryTrace.query_type value ' \
-        "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
-
       case ActiveRecordQueryTrace.query_type
       when :all then true
       when :read then db_read_query?(payload)
       when :write then !db_read_query?(payload)
-      else raise(invalid_type_msg)
+      else
+        raise 'Invalid ActiveRecordQueryTrace.query_type value ' \
+          "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
       end
     end
 
@@ -112,11 +111,16 @@ module ActiveRecordQueryTrace
     end
 
     def clean_trace(full_trace)
-      invalid_level_msg = 'Invalid ActiveRecordQueryTrace.level value ' \
-              "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
-      raise(invalid_level_msg) unless %i[full app rails].include?(ActiveRecordQueryTrace.level)
+      case ActiveRecordQueryTrace.level
+      when :full
+        trace = full_trace
+      when :app, :rails
+        trace = Rails.backtrace_cleaner.clean(full_trace)
+      else
+        raise 'Invalid ActiveRecordQueryTrace.level value ' \
+          "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
+      end
 
-      trace = ActiveRecordQueryTrace.level == :full ? full_trace : Rails.backtrace_cleaner.clean(full_trace)
       # We cant use a Rails::BacktraceCleaner filter to display only the relative
       # path of application trace lines because it breaks the silencer that selects
       # the lines to display or hide based on whether they include `Rails.root`.
