@@ -171,18 +171,23 @@ module ActiveRecordQueryTrace
     end
 
     def color_code
+      return @color_code if @color_code && @configured_color == ActiveRecordQueryTrace.colorize
+
+      @configured_color = ActiveRecordQueryTrace.colorize
+
       # Backward compatibility for string color names with space as word separator.
-      color_code =
+      @color_code =
         case ActiveRecordQueryTrace.colorize
         when Symbol then COLORS[ActiveRecordQueryTrace.colorize]
         when String then COLORS[ActiveRecordQueryTrace.colorize.tr("\s", '_').to_sym]
         end
+    end
 
-      error_msg = 'ActiveRecordQueryTrace.colorize was set to an invalid ' \
-           "color. Use one of #{COLORS.keys} or a valid color code."
-
-      raise error_msg unless valid_color_code?(color_code)
-      color_code
+    def validate_color_code(color_code)
+      valid_color_code?(color_code) || raise(
+        'ActiveRecordQueryTrace.colorize was set to an invalid ' \
+          "color. Use one of #{COLORS.keys} or a valid color code."
+      )
     end
 
     def valid_color_code?(color_code)
