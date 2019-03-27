@@ -87,7 +87,7 @@ module ActiveRecordQueryTrace
     end
 
     def db_read_query?(payload)
-      !payload[:sql].match(/(INSERT|UPDATE|DELETE)/)
+      payload[:sql] !~ /(INSERT|UPDATE|DELETE)/
     end
 
     def fully_formatted_trace
@@ -103,7 +103,7 @@ module ActiveRecordQueryTrace
     end
 
     def transaction_begin_or_commit_query?(payload)
-      payload[:sql].match(/\A(begin transaction|commit transaction|BEGIN|COMMIT)\Z/)
+      payload[:sql] =~ /\A(begin transaction|commit transaction|BEGIN|COMMIT)\Z/
     end
 
     def schema_query?(payload)
@@ -139,9 +139,9 @@ module ActiveRecordQueryTrace
 
       case ActiveRecordQueryTrace.level
       when :app
-        Rails.backtrace_cleaner.add_silencer { |line| !line.match(rails_root_regexp) }
+        Rails.backtrace_cleaner.add_silencer { |line| line !~ rails_root_regexp }
       when :rails
-        Rails.backtrace_cleaner.add_silencer { |line| line.match(rails_root_regexp) }
+        Rails.backtrace_cleaner.add_silencer { |line| line =~ rails_root_regexp }
       end
     end
 
@@ -186,7 +186,7 @@ module ActiveRecordQueryTrace
     end
 
     def valid_color_code?(color_code)
-      /\A\d+(;\d+)?\Z/.match(color_code)
+      /\A\d+(;\d+)?\Z/ =~ color_code
     end
 
     # This cannot be set in a constant as Rails.root is not yet available when
