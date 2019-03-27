@@ -124,7 +124,7 @@ module ActiveRecordQueryTrace
       # We cant use a Rails::BacktraceCleaner filter to display only the relative
       # path of application trace lines because it breaks the silencer that selects
       # the lines to display or hide based on whether they include `Rails.root`.
-      trace.map { |line| line.sub("#{Rails.root}/", '') }
+      trace.map { |line| line.sub(rails_root_prefix, '') }
     end
 
     # Rails by default silences all backtraces that *do not* match
@@ -187,6 +187,10 @@ module ActiveRecordQueryTrace
 
     def valid_color_code?(color_code)
       /\A\d+(?:;\d+)?\Z/ =~ color_code
+    end
+
+    def rails_root_prefix
+      @rails_root_prefix ||= "#{Rails.root}/"
     end
 
     # This cannot be set in a constant as Rails.root is not yet available when
