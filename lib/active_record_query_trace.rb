@@ -76,19 +76,18 @@ module ActiveRecordQueryTrace
     # rubocop:enable Metrics/PerceivedComplexity
 
     def display_backtrace_for_query_type?(payload)
-      invalid_type_msg = 'Invalid ActiveRecordQueryTrace.query_type value ' \
-        "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
-
       case ActiveRecordQueryTrace.query_type
       when :all then true
       when :read then db_read_query?(payload)
       when :write then !db_read_query?(payload)
-      else raise(invalid_type_msg)
+      else
+        raise 'Invalid ActiveRecordQueryTrace.query_type value ' \
+          "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
       end
     end
 
     def db_read_query?(payload)
-      !payload[:sql].match(/(INSERT|UPDATE|DELETE)/)
+      payload[:sql] !~ /INSERT|UPDATE|DELETE/
     end
 
     def fully_formatted_trace
@@ -104,7 +103,7 @@ module ActiveRecordQueryTrace
     end
 
     def transaction_begin_or_commit_query?(payload)
-      payload[:sql].match(/\A(begin transaction|commit transaction|BEGIN|COMMIT)\Z/)
+      payload[:sql] =~ /\Abegin transaction|commit transaction|BEGIN|COMMIT\Z/
     end
 
     def schema_query?(payload)
@@ -112,15 +111,20 @@ module ActiveRecordQueryTrace
     end
 
     def clean_trace(full_trace)
-      invalid_level_msg = 'Invalid ActiveRecordQueryTrace.level value ' \
-              "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
-      raise(invalid_level_msg) unless %i[full app rails].include?(ActiveRecordQueryTrace.level)
+      case ActiveRecordQueryTrace.level
+      when :full
+        trace = full_trace
+      when :app, :rails
+        trace = Rails.backtrace_cleaner.clean(full_trace)
+      else
+        raise 'Invalid ActiveRecordQueryTrace.level value ' \
+          "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
+      end
 
-      trace = ActiveRecordQueryTrace.level == :full ? full_trace : Rails.backtrace_cleaner.clean(full_trace)
       # We cant use a Rails::BacktraceCleaner filter to display only the relative
       # path of application trace lines because it breaks the silencer that selects
       # the lines to display or hide based on whether they include `Rails.root`.
-      trace.map { |line| line.gsub("#{Rails.root}/", '') }
+      trace.map { |line| line.sub(rails_root_prefix, '') }
     end
 
     # Rails by default silences all backtraces that *do not* match
@@ -135,9 +139,9 @@ module ActiveRecordQueryTrace
 
       case ActiveRecordQueryTrace.level
       when :app
-        Rails.backtrace_cleaner.add_silencer { |line| !line.match(rails_root_regexp) }
+        Rails.backtrace_cleaner.add_silencer { |line| line !~ rails_root_regexp }
       when :rails
-        Rails.backtrace_cleaner.add_silencer { |line| line.match(rails_root_regexp) }
+        Rails.backtrace_cleaner.add_silencer { |line| line =~ rails_root_regexp }
       end
     end
 
@@ -167,28 +171,37 @@ module ActiveRecordQueryTrace
     end
 
     def color_code
+      return @color_code if @color_code && @configured_color == ActiveRecordQueryTrace.colorize
+
+      @configured_color = ActiveRecordQueryTrace.colorize
+
       # Backward compatibility for string color names with space as word separator.
-      color_code =
+      @color_code =
         case ActiveRecordQueryTrace.colorize
         when Symbol then COLORS[ActiveRecordQueryTrace.colorize]
         when String then COLORS[ActiveRecordQueryTrace.colorize.tr("\s", '_').to_sym]
         end
+    end
 
-      error_msg = 'ActiveRecordQueryTrace.colorize was set to an invalid ' \
-           "color. Use one of #{COLORS.keys} or a valid color code."
-
-      raise error_msg unless valid_color_code?(color_code)
-      color_code
+    def validate_color_code(color_code)
+      valid_color_code?(color_code) || raise(
+        'ActiveRecordQueryTrace.colorize was set to an invalid ' \
+          "color. Use one of #{COLORS.keys} or a valid color code."
+      )
     end
 
     def valid_color_code?(color_code)
-      /\A\d+(;\d+)?\Z/.match(color_code)
+      /\A\d+(?:;\d+)?\Z/ =~ color_code
+    end
+
+    def rails_root_prefix
+      @rails_root_prefix ||= "#{Rails.root}/"
     end
 
     # This cannot be set in a constant as Rails.root is not yet available when
     # this file is loaded.
     def rails_root_regexp
-      %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
+      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
     end
   end
 end
@@ -213,7 +226,7 @@ ActiveSupport::LogSubscriber.class_eval do
 
   def debug(*args, &block)
     return if ActiveRecordQueryTrace.suppress_logging_of_db_reads \
-      && args.first !~ /(INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX})/
+      && args.first !~ /INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX}/
     original_debug(*args, &block)
   end
 end
