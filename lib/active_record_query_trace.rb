@@ -24,6 +24,7 @@ module ActiveRecordQueryTrace
     white: '1;37',
     light_cyan: '1;36'
   }.freeze
+  DEFAULT_LINES = 5
 
   class << self
     attr_accessor :enabled
@@ -40,7 +41,7 @@ module ActiveRecordQueryTrace
       super
       ActiveRecordQueryTrace.enabled = false
       ActiveRecordQueryTrace.level = :app
-      ActiveRecordQueryTrace.lines = 5
+      ActiveRecordQueryTrace.lines = nil
       ActiveRecordQueryTrace.ignore_cached_queries = false
       ActiveRecordQueryTrace.colorize = false
       ActiveRecordQueryTrace.query_type = :all
@@ -99,7 +100,8 @@ module ActiveRecordQueryTrace
 
     # Must be called after the backtrace cleaner.
     def lines_to_display(full_trace)
-      ActiveRecordQueryTrace.lines.zero? ? full_trace : full_trace.first(ActiveRecordQueryTrace.lines)
+      lines = ActiveRecordQueryTrace.lines || (ActiveRecordQueryTrace.level == :full ? 0 : DEFAULT_LINES)
+      lines.zero? ? full_trace : full_trace.first(lines)
     end
 
     def transaction_begin_or_commit_query?(payload)

@@ -239,12 +239,6 @@ describe ActiveRecordQueryTrace do
         allow(log_subscriber).to receive(:original_trace).and_return(backtrace)
       end
 
-      it 'is set to 5 by default' do
-        # Call initialize to reset to the default value.
-        described_class::CustomLogSubscriber.new
-        expect(described_class.lines).to eq(5)
-      end
-
       # The following examples also test that the backtrace is not displayed
       # for transaction begin and commit queries. If it was displayed, the log
       # would contain three backtraces for each `User.create!` operation.
@@ -255,10 +249,35 @@ describe ActiveRecordQueryTrace do
             User.create!
           end
 
-          it "displays the last #{lines} #{'line'.pluralize(lines)} of the backlog" do
+          it "displays the last #{lines} #{'line'.pluralize(lines)} of the backtrace" do
             expect(log.scan(line).size).to eq(lines)
           end
         end
+      end
+
+      it 'displays the last 5 lines of the backtrace by default' do
+        described_class.level = :rails
+        User.create!
+        expect(log.scan(line).size).to eq(5)
+      end
+
+      it 'displays the full backtrace when set to 0' do
+        described_class.lines = 0
+        User.create!
+        expect(log.scan(line).size).to eq(backtrace.length)
+      end
+
+      it 'displays the full backtrace when log level is set to :full' do
+        described_class.level = :full
+        User.create!
+        expect(log.scan(line).size).to eq(backtrace.length)
+      end
+
+      it 'displays the configured number of lines even when log level is set to :full' do
+        described_class.lines = 10
+        described_class.level = :full
+        User.create!
+        expect(log.scan(line).size).to eq(10)
       end
     end
 
