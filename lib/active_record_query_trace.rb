@@ -178,7 +178,7 @@ module ActiveRecordQueryTrace
       # Backward compatibility for string color names with space as word separator.
       @color_code =
         case ActiveRecordQueryTrace.colorize
-        when Symbol then COLORS[ActiveRecordQueryTrace.colorize]
+        when Symbol, true then COLORS[ActiveRecordQueryTrace.colorize]
         when String then COLORS[ActiveRecordQueryTrace.colorize.tr("\s", '_').to_sym]
         end
     end

@@ -303,7 +303,7 @@ describe ActiveRecordQueryTrace do
         expect(described_class.colorize).to eq(false)
       end
 
-      described_class::COLORS.except(true).each do |color_name, color_code|
+      described_class::COLORS.each do |color_name, color_code|
         context "When ActiveRecordQueryTrace.colorize is set to #{color_name.to_s.humanize.downcase}" do
           let(:regexp) do
             /
@@ -325,14 +325,16 @@ describe ActiveRecordQueryTrace do
             end
           end
 
-          context 'with a string as the color name and space as word separator' do
-            before do
-              described_class.colorize = color_name.to_s.tr('_', "\s") # e.g., 'light purple'
-              User.create!
-            end
+          unless color_name == true
+            context 'with a string as the color name and space as word separator' do
+              before do
+                described_class.colorize = color_name.to_s.tr('_', "\s") # e.g., 'light purple'
+                User.create!
+              end
 
-            it 'displays the backtrace with the selected color then resets to the default color' do
-              expect(log).to match(regexp)
+              it 'displays the backtrace with the selected color then resets to the default color' do
+                expect(log).to match(regexp)
+              end
             end
           end
         end
