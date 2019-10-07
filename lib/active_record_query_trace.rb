@@ -68,7 +68,7 @@ module ActiveRecordQueryTrace
       ActiveRecordQueryTrace.enabled \
         && !transaction_begin_or_commit_query?(payload) \
         && !schema_query?(payload) \
-        && !(ActiveRecordQueryTrace.ignore_cached_queries && payload[:cached]) \
+        && !(ActiveRecordQueryTrace.ignore_cached_queries && (payload[:cached] || payload[:name] == 'CACHE')) \
         && !(ActiveRecordQueryTrace.suppress_logging_of_db_reads && db_read_query?(payload)) \
         && display_backtrace_for_query_type?(payload)
     end
