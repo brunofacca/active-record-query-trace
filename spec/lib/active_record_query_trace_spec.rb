@@ -279,7 +279,7 @@ describe ActiveRecordQueryTrace do
         end
 
         it 'does not display the backtrace for cached queries' do
-          expect(log).not_to match(/CACHE User Load.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/m)
         end
       end
 
