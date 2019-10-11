@@ -62,12 +62,11 @@ module ActiveRecordQueryTrace
     private
 
     def cached_query?(payload)
-      return false unless ActiveRecordQueryTrace.ignore_cached_queries 
+      return false unless ActiveRecordQueryTrace.ignore_cached_queries
       payload[:cached] || payload[:name] == 'CACHE'
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
     # TODO: refactor and remove rubocop:disable comments.
     def display_backtrace?(payload)
       ActiveRecordQueryTrace.enabled \
@@ -78,7 +77,6 @@ module ActiveRecordQueryTrace
         && display_backtrace_for_query_type?(payload)
     end
     # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/PerceivedComplexity
 
     def display_backtrace_for_query_type?(payload)
       case ActiveRecordQueryTrace.query_type
