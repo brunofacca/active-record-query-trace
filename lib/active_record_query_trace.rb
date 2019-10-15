@@ -33,6 +33,7 @@ module ActiveRecordQueryTrace
     attr_accessor :colorize
     attr_accessor :query_type
     attr_accessor :suppress_logging_of_db_reads
+    attr_accessor :backtrace_cleaner
   end
 
   class CustomLogSubscriber < ActiveRecord::LogSubscriber # rubocop:disable Metrics/ClassLength
@@ -51,7 +52,7 @@ module ActiveRecordQueryTrace
       payload = event.payload
       return unless display_backtrace?(payload)
 
-      setup_backtrace_cleaner
+      setup_backtrace_cleaner unless ActiveRecordQueryTrace.backtrace_cleaner
 
       trace = fully_formatted_trace # Memoize
       debug(trace) unless trace.blank?
@@ -119,6 +120,11 @@ module ActiveRecordQueryTrace
         trace = full_trace
       when :app, :rails
         trace = Rails.backtrace_cleaner.clean(full_trace)
+      when :custom
+        unless ActiveRecordQueryTrace.backtrace_cleaner
+          raise 'Configure your backtrace cleaner first via ActiveRecordQueryTrace.backtrace_cleaner = MyCleaner'
+        end
+        trace = ActiveRecordQueryTrace.backtrace_cleaner.clean(full_trace)
       else
         raise 'Invalid ActiveRecordQueryTrace.level value ' \
           "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."

@@ -54,6 +54,18 @@ There are three levels of debug.
 ActiveRecordQueryTrace.level = :app # default
 ```
 
+If you need more control you can provide a custom bactrace cleaner using the `:custom` level. For example:
+
+```ruby
+ActiveRecordQueryTrace.level = :custom
+require "rails/backtrace_cleaner"
+ActiveRecordQueryTrace.backtrace_cleaner = Rails::BacktraceCleaner.new.tap do |bc|
+  bc.remove_filters!
+  bc.remove_silencers!
+  bc.add_silencer { |line| line =~ /\b(active_record_query_trace|active_support|active_record|another_gem)\b/ }
+end
+```
+
 #### Display the trace only for read or write queries
 You can choose to display the backtrace only for DB reads, writes or both.
 

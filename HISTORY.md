@@ -1,3 +1,7 @@
+## master
+
+* Add ability to provide custom backtrace cleaner.
+
 ## 1.6.2 (2019-03-12)
 
 * Improve backtrace cleaner silencers for `:app` level. When .level is set to

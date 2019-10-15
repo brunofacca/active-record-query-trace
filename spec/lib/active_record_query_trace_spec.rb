@@ -134,6 +134,27 @@ describe ActiveRecordQueryTrace do
           )
         end
       end
+
+      context 'when custom backtrace cleaner is set' do
+        before do
+          described_class.level = :custom
+          described_class.backtrace_cleaner = Rails::BacktraceCleaner.new.tap do |bc|
+            bc.add_silencer { |line| line =~ /gems|controllers/ }
+          end
+
+          User.create!
+        end
+
+        it 'only displays lines matching custom cleaner' do
+          expect(log).to match(
+            %r{
+              .*
+              #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
+              .*lib/foo\.rb\:10:in
+            }x
+          )
+        end
+      end
     end
 
     describe '.query_type' do
