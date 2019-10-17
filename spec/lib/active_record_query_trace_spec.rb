@@ -148,7 +148,26 @@ describe ActiveRecordQueryTrace do
         it 'only displays lines matching custom cleaner' do
           expect(log).to match(
             %r{
-              .*
+              #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
+              .*lib/foo\.rb\:10:in
+            }x
+          )
+        end
+      end
+
+      context 'when custom backtrace cleaner is set and is proc' do
+        before do
+          described_class.level = :custom
+          described_class.backtrace_cleaner = lambda { |trace|
+            trace.reject { |line| line =~ /gems|controllers/ }
+          }
+
+          User.create!
+        end
+
+        it 'only displays lines matching custom cleaner' do
+          expect(log).to match(
+            %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
               .*lib/foo\.rb\:10:in
             }x

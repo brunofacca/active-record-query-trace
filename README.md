@@ -66,6 +66,15 @@ ActiveRecordQueryTrace.backtrace_cleaner = Rails::BacktraceCleaner.new.tap do |b
 end
 ```
 
+It's not necessary to create an instance of `Rails::BacktraceCleaner`, you can use any object responding to `#clean` or even
+a lambda/proc:
+
+```ruby
+ActiveRecordQueryTrace.backtrace_cleaner = ->(trace) {
+  trace.reject { |line| line =~ /\b(active_record_query_trace|active_support|active_record|another_gem)\b/ }
+}
+```
+
 #### Display the trace only for read or write queries
 You can choose to display the backtrace only for DB reads, writes or both.
 
