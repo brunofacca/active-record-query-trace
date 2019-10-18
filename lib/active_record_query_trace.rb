@@ -33,6 +33,16 @@ module ActiveRecordQueryTrace
     attr_accessor :colorize
     attr_accessor :query_type
     attr_accessor :suppress_logging_of_db_reads
+    attr_reader :backtrace_cleaner
+
+    def backtrace_cleaner=(cleaner)
+      @backtrace_cleaner =
+        if cleaner.is_a?(Proc)
+          cleaner
+        else
+          proc { |trace| cleaner.clean(trace) }
+        end
+    end
   end
 
   class CustomLogSubscriber < ActiveRecord::LogSubscriber # rubocop:disable Metrics/ClassLength
@@ -51,7 +61,7 @@ module ActiveRecordQueryTrace
       payload = event.payload
       return unless display_backtrace?(payload)
 
-      setup_backtrace_cleaner
+      setup_backtrace_cleaner unless ActiveRecordQueryTrace.backtrace_cleaner
 
       trace = fully_formatted_trace # Memoize
       debug(trace) unless trace.blank?
@@ -113,12 +123,18 @@ module ActiveRecordQueryTrace
       payload[:name] == 'SCHEMA'
     end
 
+    # rubocop:disable Metrics/MethodLength
     def clean_trace(full_trace)
       case ActiveRecordQueryTrace.level
       when :full
         trace = full_trace
       when :app, :rails
         trace = Rails.backtrace_cleaner.clean(full_trace)
+      when :custom
+        unless ActiveRecordQueryTrace.backtrace_cleaner
+          raise 'Configure your backtrace cleaner first via ActiveRecordQueryTrace.backtrace_cleaner = MyCleaner'
+        end
+        trace = ActiveRecordQueryTrace.backtrace_cleaner.call(full_trace)
       else
         raise 'Invalid ActiveRecordQueryTrace.level value ' \
           "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
@@ -129,6 +145,7 @@ module ActiveRecordQueryTrace
       # the lines to display or hide based on whether they include `Rails.root`.
       trace.map { |line| line.sub(rails_root_prefix, '') }
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Rails by default silences all backtraces that *do not* match
     # Rails::BacktraceCleaner::APP_DIRS_PATTERN. In other words, the default

@@ -10,7 +10,7 @@ rails_version =
     { github: 'rails/rails' }
   when nil
     # Default version, required for running tests locally without setting ENV['RAILS_VERSION'].
-    '>= 5.2.2'
+    '~> 5.2'
   else
     ENV['RAILS_VERSION']
   end
