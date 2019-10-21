@@ -13,43 +13,43 @@ rvm:
 # We will not test on Rails versions thar are no longer supported (EOL).
 # List of Rails releases: https://rubygems.org/gems/rails/versions
 # Maintenance status of each Rails series: https://guides.rubyonrails.org/maintenance_policy.html
-env:
-  - RAILS_VERSION=4.0.0 # If we say the gem supports Rails >= 4, it should be tested with 4.0.0 as well.
-  - RAILS_VERSION="~> 4"
-  - RAILS_VERSION="~> 5"
-  - RAILS_VERSION=6.0.0.beta2
-  - RAILS_VERSION=master
+gemfile:
+  - Gemfile
+  - gemfiles/rails40.gemfile # If we say the gem supports Rails >= 4, it should be tested with 4.0.0 as well.
+  - gemfiles/rails4.gemfile
+  - gemfiles/rails5.gemfile
+  - gemfiles/railsmaster.gemfile
 matrix:
   # When testing against the head or master (unreleased versions) of Ruby or
   # Rails, failures may occur because the branch is unstable and not due to our
   # project. For these cases, we'll allow failures until official versions are
   # released.
   allow_failures:
-    - env: RAILS_VERSION=master
+    - gemfile: gemfiles/railsmaster.gemfile
     - rvm: ruby-head
   # Some Rails versions do not work with older Ruby versions.
   exclude:
     # Rails >= 6 requires Ruby version >= 2.5.0
     - rvm: 2.3.8
-      env: RAILS_VERSION=6.0.0.beta2
+      gemfile: Gemfile
     - rvm: 2.3.8
-      env: RAILS_VERSION=master
+      gemfile: gemfiles/railsmaster.gemfile
     - rvm: 2.4.4
-      env: RAILS_VERSION=6.0.0.beta2
+      gemfile: Gemfile
     - rvm: 2.4.4
-      env: RAILS_VERSION=master
+      gemfile: gemfiles/railsmaster.gemfile
     # I was unable to get Ruby head to work with Bundler < 2, which is required by Rails ~> 4
     - rvm: ruby-head
-      env: RAILS_VERSION="~> 4"
+      gemfile: gemfiles/rails4.gemfile
     # Rails 4.0.0 only works with Ruby 2.3.8
     - rvm: 2.4.4
-      env: RAILS_VERSION=4.0.0
+      gemfile: gemfiles/rails40.gemfile
     - rvm: 2.5.3
-      env: RAILS_VERSION=4.0.0
+      gemfile: gemfiles/rails40.gemfile
     - rvm: 2.6.1
-      env: RAILS_VERSION=4.0.0
+      gemfile: gemfiles/rails40.gemfile
     - rvm: ruby-head
-      env: RAILS_VERSION=4.0.0
+      gemfile: gemfiles/rails40.gemfile
 # See https://docs.travis-ci.com/user/caching/#bundler
 cache: bundler
 sudo: false

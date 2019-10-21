@@ -1,8 +1,14 @@
 require: rubocop-rspec
 
+inherit_mode:
+  merge:
+    - Exclude
+
 AllCops:
   DisplayStyleGuide: true
   TargetRubyVersion: 2.3
+  Exclude:
+    - 'gemfiles/**/*'
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
