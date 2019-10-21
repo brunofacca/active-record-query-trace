@@ -1,6 +1,15 @@
-## master
+## 1.7
 
 * Add ability to provide custom backtrace cleaner.
+
+* Make it possible to use the gem without rails (see
+[here](https://github.com/brunofacca/active-record-query-trace/issues/9#issuecomment-544443322)).
+
+* Refactor tests to use a different gemfile for each Rails version.
+
+* Fix compatibility with latest `master` branch of Rails.
+
+* Bug fixes.
 
 ## 1.6.2 (2019-03-12)
 
