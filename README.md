@@ -120,7 +120,6 @@ To colorize the output:
 ```ruby
 ActiveRecordQueryTrace.colorize = false           # No colorization (default)
 ActiveRecordQueryTrace.colorize = :light_purple   # Colorize in specific color
-ActiveRecordQueryTrace.colorize = true            # Colorize in default color
 ```
 
 Valid colors are: `:black`, `:red`, `:green`, `:brown`, `:blue`, `:purple`, `:cyan`, 
