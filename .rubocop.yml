@@ -6,7 +6,7 @@ inherit_mode:
 
 AllCops:
   DisplayStyleGuide: true
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.4
   Exclude:
     - 'gemfiles/**/*'
 
@@ -27,6 +27,10 @@ MultilineOperationIndentation:
 
 Style/Documentation:
   Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: true
+  Max: 7
 
 RSpec/NestedGroups:
   Enabled: false
