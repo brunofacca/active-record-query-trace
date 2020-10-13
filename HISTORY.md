@@ -1,3 +1,11 @@
+## 1.8
+
+* Add support to Ruby 3.
+
+* Drop support for Ruby 2.4.
+
+* Small improvement to the README.
+
 ## 1.7
 
 * Add ability to provide custom backtrace cleaner.
