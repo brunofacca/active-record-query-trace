@@ -108,7 +108,8 @@ ActiveRecordQueryTrace.ignore_cached_queries = true # Default is false.
 
 #### Limit the number of lines in the backtrace
 If you are working with a large app, you may wish to limit the number of lines 
-displayed for each query.
+displayed for each query.  If you set `level` to `:full`, you might want to set
+`lines` to `0` so you can see the entire trace.
 
 ```ruby
 ActiveRecordQueryTrace.lines = 10 # Default is 5. Setting to 0 includes entire trace.
