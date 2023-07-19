@@ -27,13 +27,13 @@ module ActiveRecordQueryTrace
 
   class << self
     attr_accessor :enabled
-    attr_accessor :level
     attr_accessor :lines
     attr_accessor :ignore_cached_queries
     attr_accessor :colorize
     attr_accessor :query_type
     attr_accessor :suppress_logging_of_db_reads
-    attr_reader :backtrace_cleaner
+    attr_writer :default_cleaner
+    attr_reader :backtrace_cleaner, :level
 
     def backtrace_cleaner=(cleaner)
       @backtrace_cleaner =
@@ -42,6 +42,42 @@ module ActiveRecordQueryTrace
         else
           proc { |trace| cleaner.clean(trace) }
         end
+    end
+
+    # When changing the level we need to reset the backtrace cleaner used
+    def level=(level)
+      @level = level
+      @default_cleaner = nil
+    end
+
+    def default_cleaner
+      @default_cleaner ||= setup_backtrace_cleaner
+    end
+
+    # The following code creates a brand new BacktraceCleaner just for the use of this Gem
+    # avoiding the dealing with Rails.backtrace_cleaner
+    def setup_backtrace_cleaner
+      cleaner = Rails::BacktraceCleaner.new
+      remove_filters_and_silencers cleaner
+      cleaner.instance_variable_set :@root, Rails.root.to_s if cleaner.instance_variable_get(:@root) == '/'
+      case ActiveRecordQueryTrace.level
+      when :app
+        cleaner.add_silencer { |line| line !~ rails_root_regexp }
+      when :rails
+        cleaner.add_silencer { |line| line =~ rails_root_regexp }
+      end
+      cleaner
+    end
+
+    def remove_filters_and_silencers(cleaner)
+      cleaner.remove_filters!
+      cleaner.remove_silencers!
+    end
+
+    # This cannot be set in a constant as Rails.root is not yet available when
+    # this file is loaded.
+    def rails_root_regexp
+      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
     end
   end
 
@@ -60,12 +96,11 @@ module ActiveRecordQueryTrace
     def sql(event)
       payload = event.payload
       return unless display_backtrace?(payload)
-
-      setup_backtrace_cleaner unless ActiveRecordQueryTrace.backtrace_cleaner
-
       trace = fully_formatted_trace # Memoize
       debug(trace) unless trace.blank?
     end
+
+    delegate :default_cleaner, to: ActiveRecordQueryTrace
 
     attach_to :active_record
 
@@ -127,7 +162,7 @@ module ActiveRecordQueryTrace
       when :full
         trace = full_trace
       when :app, :rails
-        trace = Rails.backtrace_cleaner.clean(full_trace)
+        trace = default_cleaner.clean(full_trace)
       when :custom
         unless ActiveRecordQueryTrace.backtrace_cleaner
           raise 'Configure your backtrace cleaner first via ActiveRecordQueryTrace.backtrace_cleaner = MyCleaner'
@@ -135,7 +170,7 @@ module ActiveRecordQueryTrace
         trace = ActiveRecordQueryTrace.backtrace_cleaner.call(full_trace)
       else
         raise 'Invalid ActiveRecordQueryTrace.level value ' \
-          "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
+              "#{ActiveRecordQueryTrace.level}. Should be :full, :rails, or :app."
       end
 
       # We cant use a Rails::BacktraceCleaner filter to display only the relative
@@ -144,38 +179,6 @@ module ActiveRecordQueryTrace
       trace.map { |line| line.sub(rails_root_prefix, '') }
     end
     # rubocop:enable Metrics/MethodLength
-
-    # Rails by default silences all backtraces that *do not* match
-    # Rails::BacktraceCleaner::APP_DIRS_PATTERN. In other words, the default
-    # silencer filters out all framework backtrace lines, leaving only the
-    # application lines.
-    def setup_backtrace_cleaner
-      setup_backtrace_cleaner_path
-      return if ActiveRecordQueryTrace.level == :full
-
-      remove_filters_and_silencers
-
-      case ActiveRecordQueryTrace.level
-      when :app
-        Rails.backtrace_cleaner.add_silencer { |line| line !~ rails_root_regexp }
-      when :rails
-        Rails.backtrace_cleaner.add_silencer { |line| line =~ rails_root_regexp }
-      end
-    end
-
-    # Rails relies on backtrace cleaner to set the application root directory
-    # filter. The problem is that the backtrace cleaner is initialized before
-    # this gem. This ensures that the value of `root` used by the filter
-    # is correct.
-    def setup_backtrace_cleaner_path
-      return unless Rails.backtrace_cleaner.instance_variable_get(:@root) == '/'
-      Rails.backtrace_cleaner.instance_variable_set :@root, Rails.root.to_s
-    end
-
-    def remove_filters_and_silencers
-      Rails.backtrace_cleaner.remove_filters!
-      Rails.backtrace_cleaner.remove_silencers!
-    end
 
     # Allow query to be colorized in the terminal
     def colorize_text(text)
@@ -214,12 +217,6 @@ module ActiveRecordQueryTrace
 
     def rails_root_prefix
       @rails_root_prefix ||= "#{Rails.root}/"
-    end
-
-    # This cannot be set in a constant as Rails.root is not yet available when
-    # this file is loaded.
-    def rails_root_regexp
-      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
     end
   end
 end

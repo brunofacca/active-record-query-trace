@@ -71,13 +71,12 @@ describe ActiveRecordQueryTrace do
 
       before do
         # The first before block of this spec sets level to :full. Here we call
-        # initialize to reset to the default level and call setup_backtrace_cleaner_path
-        # to setup the BacktraceCleaner.
-        described_class::CustomLogSubscriber.new.send(:setup_backtrace_cleaner_path)
+        # CustomLogSubscriber.new to reset to the default level and all the attributes of
+        # ActiveRecordQueryTrace and call Rails.backtrace_cleaner to initialize Rails::BacktraceCleaner.
+        Rails.backtrace_cleaner
+        described_class::CustomLogSubscriber.new
         described_class.enabled = true
         allow(log_subscriber).to receive(:original_trace).and_return(app_lines + rails_lines)
-        # Reset to the default filters and silencers set by Rails' backtrace cleaner.
-        Rails.instance_variable_set(:@backtrace_cleaner, Rails::BacktraceCleaner.new)
       end
 
       it 'is set to :app by default' do
@@ -95,7 +94,7 @@ describe ActiveRecordQueryTrace do
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape((app_lines_with_relative_path + rails_lines).join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape((app_lines_with_relative_path + rails_lines).join("\n#{described_class::INDENTATION}"))}
             /x
           )
         end
