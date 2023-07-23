@@ -1,3 +1,7 @@
+## 1.8.1 (2023-07-23)
+
+* Fix collisions with other gems in `Rails.backtrace_cleaner`
+
 ## 1.8
 
 * Add support to Ruby 3.
