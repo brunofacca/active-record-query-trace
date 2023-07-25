@@ -26,12 +26,7 @@ module ActiveRecordQueryTrace
   }.freeze
 
   class << self
-    attr_accessor :enabled
-    attr_accessor :lines
-    attr_accessor :ignore_cached_queries
-    attr_accessor :colorize
-    attr_accessor :query_type
-    attr_accessor :suppress_logging_of_db_reads
+    attr_accessor :enabled, :lines, :ignore_cached_queries, :colorize, :query_type, :suppress_logging_of_db_reads
     attr_writer :default_cleaner
     attr_reader :backtrace_cleaner, :level
 
@@ -77,7 +72,7 @@ module ActiveRecordQueryTrace
     # This cannot be set in a constant as Rails.root is not yet available when
     # this file is loaded.
     def rails_root_regexp
-      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
+      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!/vendor)}
     end
   end
 
@@ -139,7 +134,7 @@ module ActiveRecordQueryTrace
     def fully_formatted_trace
       cleaned_trace = clean_trace(original_trace)
       return if cleaned_trace.blank?
-      stringified_trace = BACKTRACE_PREFIX + lines_to_display(cleaned_trace).join("\n" + INDENTATION)
+      stringified_trace = BACKTRACE_PREFIX + lines_to_display(cleaned_trace).join("\n#{INDENTATION}")
       colorize_text(stringified_trace)
     end
 

@@ -8,7 +8,7 @@ describe ActiveRecordQueryTrace do
   let(:log) { logger_io.string }
   let(:log_subscriber) do
     ActiveRecord::LogSubscriber.log_subscribers
-      .find { |ls| ls.class == ActiveRecordQueryTrace::CustomLogSubscriber }
+      .find { |ls| ls.instance_of?(ActiveRecordQueryTrace::CustomLogSubscriber) }
   end
 
   before do
@@ -111,7 +111,7 @@ describe ActiveRecordQueryTrace do
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape(rails_lines.join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape(rails_lines.join("\n#{described_class::INDENTATION}"))}
             /x
           )
         end
@@ -128,7 +128,7 @@ describe ActiveRecordQueryTrace do
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape(app_lines_with_relative_path.join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape(app_lines_with_relative_path.join("\n#{described_class::INDENTATION}"))}
             /x
           )
         end
@@ -148,7 +148,7 @@ describe ActiveRecordQueryTrace do
           expect(log).to match(
             %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              .*lib/foo\.rb\:10:in
+              .*lib/foo\.rb:10:in
             }x
           )
         end
@@ -168,7 +168,7 @@ describe ActiveRecordQueryTrace do
           expect(log).to match(
             %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              .*lib/foo\.rb\:10:in
+              .*lib/foo\.rb:10:in
             }x
           )
         end
@@ -343,7 +343,7 @@ describe ActiveRecordQueryTrace do
       end
 
       described_class::COLORS.each do |color_name, color_code|
-        context "When ActiveRecordQueryTrace.colorize is set to #{color_name.to_s.humanize.downcase}" do
+        context "when ActiveRecordQueryTrace.colorize is set to #{color_name.to_s.humanize.downcase}" do
           let(:regexp) do
             /
               \e\[#{color_code}m                                    # Start colorizing with the selected color
