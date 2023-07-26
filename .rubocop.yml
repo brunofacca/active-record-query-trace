@@ -21,19 +21,11 @@ Layout/EmptyLineAfterGuardClause:
 Metrics/BlockLength:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
 Style/Documentation:
   Enabled: false
-
-Style/StringLiterals:
-  Enabled: true
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  Enabled: true
-  EnforcedStyle: double_quotes
 
 RSpec/MultipleMemoizedHelpers:
   Enabled: true
@@ -41,3 +33,6 @@ RSpec/MultipleMemoizedHelpers:
 
 RSpec/NestedGroups:
   Enabled: false
+
+Gemspec/RequireMFA:
+  Enabled: false # TODO: enable this?
