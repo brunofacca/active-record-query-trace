@@ -124,7 +124,7 @@ module ActiveRecordQueryTrace
       when :write then !db_read_query?(payload)
       else
         raise 'Invalid ActiveRecordQueryTrace.query_type value ' \
-          "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
+              "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
       end
     end
 
@@ -203,7 +203,7 @@ module ActiveRecordQueryTrace
     def validate_color_code(color_code)
       valid_color_code?(color_code) || raise(
         'ActiveRecordQueryTrace.colorize was set to an invalid ' \
-          "color. Use one of #{COLORS.keys} or a valid color code."
+        "color. Use one of #{COLORS.keys} or a valid color code."
       )
     end
 
