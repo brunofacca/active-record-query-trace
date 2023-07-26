@@ -93,7 +93,7 @@ module ActiveRecordQueryTrace
       payload = event.payload
       return unless display_backtrace?(payload)
       trace = fully_formatted_trace # Memoize
-      debug(trace) unless trace.blank?
+      debug(trace) if trace.present?
     end
 
     delegate :default_cleaner, to: ActiveRecordQueryTrace
