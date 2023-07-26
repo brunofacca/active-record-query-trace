@@ -29,6 +29,12 @@ Layout/LineLength:
 Style/Documentation:
   Enabled: false
 
+Rails/FilePath:
+  Enabled: false
+
+Rails/ApplicationRecord:
+  Enabled: false
+
 RSpec/MultipleMemoizedHelpers:
   Enabled: true
   Max: 7
