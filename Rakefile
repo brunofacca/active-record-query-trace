@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'rubygems'
-require 'bundler'
-require 'bundler/gem_tasks'
+require "bundler/gem_tasks"
+require "rspec/core/rake_task"
 
-Bundler.setup
+RSpec::Core::RakeTask.new(:spec)
 
-desc 'Default task'
-task :default do
-  puts 'Hello'
-end
+require "rubocop/rake_task"
+
+RuboCop::RakeTask.new
+
+task default: %i[spec rubocop]
