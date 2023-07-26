@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_record/log_subscriber'
-require_relative "active_record_query_trace/version"
+require_relative 'active_record_query_trace/version'
 
 module ActiveRecordQueryTrace
   INDENTATION = ' ' * 6
