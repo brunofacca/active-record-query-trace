@@ -26,7 +26,7 @@ RSpec.describe ActiveRecordQueryTrace do
         # The first before block of this spec sets `enabled` to `true`. Here we
         # call initialize to reset to the default value.
         described_class::CustomLogSubscriber.new
-        expect(described_class.enabled).to eq(false)
+        expect(described_class.enabled).to be(false)
       end
 
       context 'when enabled' do
@@ -305,7 +305,7 @@ RSpec.describe ActiveRecordQueryTrace do
       it 'is disabled by default' do
         # Call initialize to reset to the default value.
         described_class::CustomLogSubscriber.new
-        expect(described_class.ignore_cached_queries).to eq(false)
+        expect(described_class.ignore_cached_queries).to be(false)
       end
 
       context 'when set to true' do
@@ -337,7 +337,7 @@ RSpec.describe ActiveRecordQueryTrace do
       it 'is disabled by default' do
         # Call initialize to reset to the default value.
         described_class::CustomLogSubscriber.new
-        expect(described_class.colorize).to eq(false)
+        expect(described_class.colorize).to be(false)
       end
 
       described_class::COLORS.each do |color_name, color_code|
@@ -384,7 +384,7 @@ RSpec.describe ActiveRecordQueryTrace do
       it 'is disabled by default' do
         # Reset options to their default values.
         described_class::CustomLogSubscriber.new
-        expect(described_class.suppress_logging_of_db_reads).to eq(false)
+        expect(described_class.suppress_logging_of_db_reads).to be(false)
       end
 
       context 'when enabled' do
