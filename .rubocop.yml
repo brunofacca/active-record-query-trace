@@ -1,4 +1,8 @@
-require: rubocop-rspec
+require:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+
 
 inherit_mode:
   merge:
@@ -6,7 +10,8 @@ inherit_mode:
 
 AllCops:
   DisplayStyleGuide: true
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.7
+  NewCops: enable
   Exclude:
     - 'gemfiles/**/*'
 
@@ -19,14 +24,16 @@ Metrics/BlockLength:
 Metrics/LineLength:
   Max: 120
 
-MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
-MultilineOperationIndentation:
-  EnforcedStyle: indented
-
 Style/Documentation:
   Enabled: false
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  Enabled: true
+  EnforcedStyle: double_quotes
 
 RSpec/MultipleMemoizedHelpers:
   Enabled: true

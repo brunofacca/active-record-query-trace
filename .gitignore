@@ -1,4 +1,15 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+
+# rspec failure tracking
+.rspec_status
+
 .byebug_history
 active_record_query_trace-*.gem
-coverage/
 Gemfile.lock

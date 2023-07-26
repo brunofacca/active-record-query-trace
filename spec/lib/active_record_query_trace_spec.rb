@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
-describe ActiveRecordQueryTrace do
+RSpec.describe ActiveRecordQueryTrace do
   let(:logger_io) { StringIO.new }
   let(:logger) { Logger.new(logger_io) }
   let(:log) { logger_io.string }
