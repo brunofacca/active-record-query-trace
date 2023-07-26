@@ -156,7 +156,7 @@ RSpec.describe ActiveRecordQueryTrace do
         before do
           described_class.level = :custom
           described_class.backtrace_cleaner = lambda { |trace|
-            trace.reject { |line| line =~ /gems|controllers/ }
+            trace.grep_v(/gems|controllers/)
           }
 
           User.create!
