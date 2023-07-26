@@ -6,7 +6,7 @@ RSpec.describe ActiveRecordQueryTrace do
   let(:log) { logger_io.string }
   let(:log_subscriber) do
     ActiveRecord::LogSubscriber.log_subscribers
-      .find { |ls| ls.instance_of?(ActiveRecordQueryTrace::CustomLogSubscriber) }
+                               .find { |ls| ls.instance_of?(ActiveRecordQueryTrace::CustomLogSubscriber) }
   end
 
   before do
