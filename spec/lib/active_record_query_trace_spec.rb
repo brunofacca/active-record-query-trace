@@ -147,7 +147,7 @@ RSpec.describe ActiveRecordQueryTrace do
             %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
               .*lib/foo\.rb:10:in
-            }x
+            }xo
           )
         end
       end
@@ -167,7 +167,7 @@ RSpec.describe ActiveRecordQueryTrace do
             %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
               .*lib/foo\.rb:10:in
-            }x
+            }xo
           )
         end
       end
@@ -192,21 +192,21 @@ RSpec.describe ActiveRecordQueryTrace do
 
         it 'adds backtrace to INSERT queries' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to UPDATE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to DELETE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -220,21 +220,21 @@ RSpec.describe ActiveRecordQueryTrace do
 
         it 'does not add backtrace to INSERT queries' do
           User.create!
-          expect(log).not_to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'does not add backtrace to UPDATE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).not_to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'does not add backtrace to DELETE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).not_to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -248,21 +248,21 @@ RSpec.describe ActiveRecordQueryTrace do
 
         it 'adds backtrace to INSERT queries' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to UPDATE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to DELETE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
     end
@@ -316,7 +316,7 @@ RSpec.describe ActiveRecordQueryTrace do
         end
 
         it 'does not display the backtrace for cached queries' do
-          expect(log).not_to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -328,7 +328,7 @@ RSpec.describe ActiveRecordQueryTrace do
         end
 
         it 'displays the backtrace for cached queries' do
-          expect(log).to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
     end
@@ -392,26 +392,26 @@ RSpec.describe ActiveRecordQueryTrace do
 
         it 'completely suppresses the logging of SELECT queries' do
           User.first
-          expect(log).not_to match(/(SELECT|#{described_class::BACKTRACE_PREFIX})/)
+          expect(log).not_to match(/(SELECT|#{described_class::BACKTRACE_PREFIX})/o)
         end
 
         it 'allows INSERT queries to be normally logged' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows UPDATE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows DELETE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -420,26 +420,26 @@ RSpec.describe ActiveRecordQueryTrace do
 
         it 'allows SELECT queries to be normally logged' do
           User.first
-          expect(log).to match(/SELECT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/SELECT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows INSERT queries to be normally logged' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows UPDATE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows DELETE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
     end

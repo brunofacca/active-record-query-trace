@@ -237,7 +237,7 @@ ActiveSupport::LogSubscriber.class_eval do
 
   def debug(*args, &block)
     return if ActiveRecordQueryTrace.suppress_logging_of_db_reads \
-      && args.first !~ /INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX}/
+      && args.first !~ /INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX}/o
     original_debug(*args, &block)
   end
 end

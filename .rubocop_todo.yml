@@ -7,13 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 
-# Offense count: 22
-# This cop supports safe autocorrection (--autocorrect).
-Performance/ConstantRegexp:
-  Exclude:
-    - 'lib/active_record_query_trace.rb'
-    - 'spec/lib/active_record_query_trace_spec.rb'
-
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
 RSpec/BeEq:
