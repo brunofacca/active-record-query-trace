@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe ActiveRecordQueryTrace do
+RSpec.describe ActiveRecordQueryTrace do
   it 'has a version number' do
-    expect(ActiveRecordQueryTrace::VERSION).not_to be nil
+    expect(ActiveRecordQueryTrace::VERSION).not_to be_nil
   end
 end

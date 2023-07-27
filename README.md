@@ -1,4 +1,4 @@
-Displays a backtrace for each query in Rails' development console and log. 
+Displays a backtrace for each query in Rails' development console and log.
 Allows you to track down where queries are executed in your application.
 Useful for performance optimizations and for finding where to start when making
 changes to a large application.
@@ -16,8 +16,8 @@ D, [2019-03-03T19:50:41.062492 #25560] DEBUG -- : Query Trace:
 ```
 
 ## Requirements
-- Ruby >= 2.4;
-- Rails 4.2, 5.2, or 6.
+- Ruby >= 2.7;
+- Rails 6.0, 6.1, or 7.
 
 ## Usage
 
@@ -28,7 +28,7 @@ D, [2019-03-03T19:50:41.062492 #25560] DEBUG -- : Query Trace:
    end
    ```
 
-2. Create an initializer such as `config/initializers/active_record_query_trace.rb` 
+2. Create an initializer such as `config/initializers/active_record_query_trace.rb`
 to enable the gem. If you want to customize how the gem behaves, you can add any
 combination of the following [options](#options) to the initializer as well.
 
@@ -98,7 +98,7 @@ ActiveRecordQueryTrace.suppress_logging_of_db_reads = false # default
 ```
 
 #### Ignore cached queries
-By default, a backtrace will be logged for every query, even cached queries that 
+By default, a backtrace will be logged for every query, even cached queries that
 do not actually hit the database. You might find it useful not to print the backtrace
 for cached queries:
 
@@ -107,7 +107,7 @@ ActiveRecordQueryTrace.ignore_cached_queries = true # Default is false.
 ```
 
 #### Limit the number of lines in the backtrace
-If you are working with a large app, you may wish to limit the number of lines 
+If you are working with a large app, you may wish to limit the number of lines
 displayed for each query.  If you set `level` to `:full`, you might want to set
 `lines` to `0` so you can see the entire trace.
 
@@ -123,8 +123,8 @@ ActiveRecordQueryTrace.colorize = false           # No colorization (default)
 ActiveRecordQueryTrace.colorize = :light_purple   # Colorize in specific color
 ```
 
-Valid colors are: `:black`, `:red`, `:green`, `:brown`, `:blue`, `:purple`, `:cyan`, 
-`:gray`, `:dark_gray`, `:light_red`, `:light_green`, `:yellow`, `:light_blue`, 
+Valid colors are: `:black`, `:red`, `:green`, `:brown`, `:blue`, `:purple`, `:cyan`,
+`:gray`, `:dark_gray`, `:light_red`, `:light_green`, `:yellow`, `:light_blue`,
 `:light_purple`, `:light_cyan`, `:white`.
 
 ## Authors

@@ -1,26 +1,34 @@
 # frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path('lib', __dir__)
-require 'active_record_query_trace/version'
+require_relative 'lib/active_record_query_trace/version'
 
-Gem::Specification.new do |s|
-  s.name          = 'active_record_query_trace'
-  s.version       = ActiveRecordQueryTrace::VERSION
-  s.summary       = 'Print stack trace of all DB queries to the Rails log. ' \
-    'Helpful to find where queries are being executed in your application.'
-  s.description   = s.summary
-  s.authors       = ['Cody Caughlan', 'Bruno Facca']
-  s.email         = 'bruno@facca.info'
-  s.homepage      = 'https://github.com/brunofacca/active-record-query-trace'
-  s.files         = Dir['lib/**/*']
-  s.license       = 'MIT'
-  s.required_ruby_version = '>= 2.4', '< 4.0'
-  s.add_development_dependency 'activerecord', '>= 4.0.0'
-  s.add_development_dependency 'pry', '~> 0.13.0'
-  s.add_development_dependency 'pry-byebug', '~> 3.9.0'
-  s.add_development_dependency 'rspec', '>= 3.8.0'
-  s.add_development_dependency 'rubocop', '>= 0.65.0'
-  s.add_development_dependency 'rubocop-rspec', '>= 1.32.0'
-  s.add_development_dependency 'simplecov', '>= 0.16.1'
-  s.add_development_dependency 'sqlite3', '>= 1.3.6'
+Gem::Specification.new do |spec|
+  spec.name          = 'active_record_query_trace'
+  spec.version       = ActiveRecordQueryTrace::VERSION
+  spec.authors       = ['Cody Caughlan', 'Bruno Facca']
+  spec.email         = 'bruno@facca.info'
+
+  spec.summary       = 'Print stack trace of all DB queries to the Rails log. ' \
+                       'Helpful to find where queries are being executed in your application.'
+  spec.description   = spec.summary
+  spec.homepage      = 'https://github.com/brunofacca/active-record-query-trace'
+  spec.license       = 'MIT'
+  spec.required_ruby_version = '>= 2.7', '< 3.4'
+
+  spec.metadata['homepage_uri'] = spec.homepage
+
+  spec.files = Dir['lib/**/*']
+  spec.require_paths = ['lib']
+
+  spec.add_dependency 'activerecord', '>= 6.0.0'
+
+  spec.add_development_dependency 'rake', '~> 13.0'
+
+  spec.add_development_dependency 'debug', '~> 1.8'
+  spec.add_development_dependency 'rspec', '~> 3.12'
+  spec.add_development_dependency 'rubocop', '~> 1.55'
+  spec.add_development_dependency 'rubocop-performance', '~> 1.18'
+  spec.add_development_dependency 'rubocop-rails', '~> 2.20'
+  spec.add_development_dependency 'rubocop-rspec', '~> 2.22'
+  spec.add_development_dependency 'simplecov', '>= 0.22.0'
 end

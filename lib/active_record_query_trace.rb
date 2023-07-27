@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_record/log_subscriber'
+require_relative 'active_record_query_trace/version'
 
 module ActiveRecordQueryTrace
   INDENTATION = ' ' * 6
@@ -26,12 +27,7 @@ module ActiveRecordQueryTrace
   }.freeze
 
   class << self
-    attr_accessor :enabled
-    attr_accessor :lines
-    attr_accessor :ignore_cached_queries
-    attr_accessor :colorize
-    attr_accessor :query_type
-    attr_accessor :suppress_logging_of_db_reads
+    attr_accessor :enabled, :lines, :ignore_cached_queries, :colorize, :query_type, :suppress_logging_of_db_reads
     attr_writer :default_cleaner
     attr_reader :backtrace_cleaner, :level
 
@@ -77,7 +73,7 @@ module ActiveRecordQueryTrace
     # This cannot be set in a constant as Rails.root is not yet available when
     # this file is loaded.
     def rails_root_regexp
-      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!\/vendor)}
+      @rails_root_regexp ||= %r{#{Regexp.escape(Rails.root.to_s)}(?!/vendor)}
     end
   end
 
@@ -97,7 +93,7 @@ module ActiveRecordQueryTrace
       payload = event.payload
       return unless display_backtrace?(payload)
       trace = fully_formatted_trace # Memoize
-      debug(trace) unless trace.blank?
+      debug(trace) if trace.present?
     end
 
     delegate :default_cleaner, to: ActiveRecordQueryTrace
@@ -128,7 +124,7 @@ module ActiveRecordQueryTrace
       when :write then !db_read_query?(payload)
       else
         raise 'Invalid ActiveRecordQueryTrace.query_type value ' \
-          "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
+              "#{ActiveRecordQueryTrace.level}. Should be :all, :read, or :write."
       end
     end
 
@@ -139,7 +135,7 @@ module ActiveRecordQueryTrace
     def fully_formatted_trace
       cleaned_trace = clean_trace(original_trace)
       return if cleaned_trace.blank?
-      stringified_trace = BACKTRACE_PREFIX + lines_to_display(cleaned_trace).join("\n" + INDENTATION)
+      stringified_trace = BACKTRACE_PREFIX + lines_to_display(cleaned_trace).join("\n#{INDENTATION}")
       colorize_text(stringified_trace)
     end
 
@@ -207,7 +203,7 @@ module ActiveRecordQueryTrace
     def validate_color_code(color_code)
       valid_color_code?(color_code) || raise(
         'ActiveRecordQueryTrace.colorize was set to an invalid ' \
-          "color. Use one of #{COLORS.keys} or a valid color code."
+        "color. Use one of #{COLORS.keys} or a valid color code."
       )
     end
 
@@ -241,7 +237,7 @@ ActiveSupport::LogSubscriber.class_eval do
 
   def debug(*args, &block)
     return if ActiveRecordQueryTrace.suppress_logging_of_db_reads \
-      && args.first !~ /INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX}/
+      && args.first !~ /INSERT|UPDATE|DELETE|#{ActiveRecordQueryTrace::BACKTRACE_PREFIX}/o
     original_debug(*args, &block)
   end
 end

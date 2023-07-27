@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
-describe ActiveRecordQueryTrace do
+RSpec.describe ActiveRecordQueryTrace do
   let(:logger_io) { StringIO.new }
   let(:logger) { Logger.new(logger_io) }
   let(:log) { logger_io.string }
   let(:log_subscriber) do
     ActiveRecord::LogSubscriber.log_subscribers
-      .find { |ls| ls.class == ActiveRecordQueryTrace::CustomLogSubscriber }
+                               .find { |ls| ls.instance_of?(ActiveRecordQueryTrace::CustomLogSubscriber) }
   end
 
   before do
@@ -28,7 +26,7 @@ describe ActiveRecordQueryTrace do
         # The first before block of this spec sets `enabled` to `true`. Here we
         # call initialize to reset to the default value.
         described_class::CustomLogSubscriber.new
-        expect(described_class.enabled).to eq(false)
+        expect(described_class.enabled).to be(false)
       end
 
       context 'when enabled' do
@@ -111,7 +109,7 @@ describe ActiveRecordQueryTrace do
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape(rails_lines.join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape(rails_lines.join("\n#{described_class::INDENTATION}"))}
             /x
           )
         end
@@ -128,7 +126,7 @@ describe ActiveRecordQueryTrace do
             /
               .*
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              #{Regexp.escape(app_lines_with_relative_path.join("\n" + described_class::INDENTATION))}
+              #{Regexp.escape(app_lines_with_relative_path.join("\n#{described_class::INDENTATION}"))}
             /x
           )
         end
@@ -148,8 +146,8 @@ describe ActiveRecordQueryTrace do
           expect(log).to match(
             %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              .*lib/foo\.rb\:10:in
-            }x
+              .*lib/foo\.rb:10:in
+            }xo
           )
         end
       end
@@ -158,7 +156,7 @@ describe ActiveRecordQueryTrace do
         before do
           described_class.level = :custom
           described_class.backtrace_cleaner = lambda { |trace|
-            trace.reject { |line| line =~ /gems|controllers/ }
+            trace.grep_v(/gems|controllers/)
           }
 
           User.create!
@@ -168,8 +166,8 @@ describe ActiveRecordQueryTrace do
           expect(log).to match(
             %r{
               #{Regexp.escape(described_class::BACKTRACE_PREFIX)}
-              .*lib/foo\.rb\:10:in
-            }x
+              .*lib/foo\.rb:10:in
+            }xo
           )
         end
       end
@@ -194,21 +192,21 @@ describe ActiveRecordQueryTrace do
 
         it 'adds backtrace to INSERT queries' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to UPDATE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to DELETE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -222,21 +220,21 @@ describe ActiveRecordQueryTrace do
 
         it 'does not add backtrace to INSERT queries' do
           User.create!
-          expect(log).not_to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'does not add backtrace to UPDATE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).not_to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'does not add backtrace to DELETE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).not_to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -250,21 +248,21 @@ describe ActiveRecordQueryTrace do
 
         it 'adds backtrace to INSERT queries' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to UPDATE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'adds backtrace to DELETE queries' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
     end
@@ -307,7 +305,7 @@ describe ActiveRecordQueryTrace do
       it 'is disabled by default' do
         # Call initialize to reset to the default value.
         described_class::CustomLogSubscriber.new
-        expect(described_class.ignore_cached_queries).to eq(false)
+        expect(described_class.ignore_cached_queries).to be(false)
       end
 
       context 'when set to true' do
@@ -318,7 +316,7 @@ describe ActiveRecordQueryTrace do
         end
 
         it 'does not display the backtrace for cached queries' do
-          expect(log).not_to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).not_to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -330,7 +328,7 @@ describe ActiveRecordQueryTrace do
         end
 
         it 'displays the backtrace for cached queries' do
-          expect(log).to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/CACHE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
     end
@@ -339,11 +337,11 @@ describe ActiveRecordQueryTrace do
       it 'is disabled by default' do
         # Call initialize to reset to the default value.
         described_class::CustomLogSubscriber.new
-        expect(described_class.colorize).to eq(false)
+        expect(described_class.colorize).to be(false)
       end
 
       described_class::COLORS.each do |color_name, color_code|
-        context "When ActiveRecordQueryTrace.colorize is set to #{color_name.to_s.humanize.downcase}" do
+        context "when ActiveRecordQueryTrace.colorize is set to #{color_name.to_s.humanize.downcase}" do
           let(:regexp) do
             /
               \e\[#{color_code}m                                    # Start colorizing with the selected color
@@ -386,7 +384,7 @@ describe ActiveRecordQueryTrace do
       it 'is disabled by default' do
         # Reset options to their default values.
         described_class::CustomLogSubscriber.new
-        expect(described_class.suppress_logging_of_db_reads).to eq(false)
+        expect(described_class.suppress_logging_of_db_reads).to be(false)
       end
 
       context 'when enabled' do
@@ -394,26 +392,26 @@ describe ActiveRecordQueryTrace do
 
         it 'completely suppresses the logging of SELECT queries' do
           User.first
-          expect(log).not_to match(/(SELECT|#{described_class::BACKTRACE_PREFIX})/)
+          expect(log).not_to match(/(SELECT|#{described_class::BACKTRACE_PREFIX})/o)
         end
 
         it 'allows INSERT queries to be normally logged' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows UPDATE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows DELETE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
 
@@ -422,26 +420,26 @@ describe ActiveRecordQueryTrace do
 
         it 'allows SELECT queries to be normally logged' do
           User.first
-          expect(log).to match(/SELECT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/SELECT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows INSERT queries to be normally logged' do
           User.create!
-          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/INSERT.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows UPDATE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.update(created_at: Time.now.utc)
-          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/UPDATE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
 
         it 'allows DELETE queries to be normally logged' do
           User.create!
           logger_io.truncate(0)
           User.last.destroy
-          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/m)
+          expect(log).to match(/DELETE.*#{described_class::BACKTRACE_PREFIX}/mo)
         end
       end
     end

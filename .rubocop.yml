@@ -1,4 +1,10 @@
-require: rubocop-rspec
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+
 
 inherit_mode:
   merge:
@@ -6,7 +12,8 @@ inherit_mode:
 
 AllCops:
   DisplayStyleGuide: true
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.7
+  NewCops: enable
   Exclude:
     - 'gemfiles/**/*'
 
@@ -16,16 +23,16 @@ Layout/EmptyLineAfterGuardClause:
 Metrics/BlockLength:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
-MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
-MultilineOperationIndentation:
-  EnforcedStyle: indented
-
 Style/Documentation:
+  Enabled: false
+
+Rails/FilePath:
+  Enabled: false
+
+Rails/ApplicationRecord:
   Enabled: false
 
 RSpec/MultipleMemoizedHelpers:
@@ -33,4 +40,10 @@ RSpec/MultipleMemoizedHelpers:
   Max: 7
 
 RSpec/NestedGroups:
+  Enabled: false
+
+Gemspec/RequireMFA:
+  Enabled: false # TODO: enable this?
+
+Gemspec/DevelopmentDependencies:
   Enabled: false
