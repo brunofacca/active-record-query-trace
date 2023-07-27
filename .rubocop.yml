@@ -44,3 +44,6 @@ RSpec/NestedGroups:
 
 Gemspec/RequireMFA:
   Enabled: false # TODO: enable this?
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false

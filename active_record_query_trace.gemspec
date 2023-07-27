@@ -28,4 +28,14 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'activerecord', '>= 6.0.0'
+
+  spec.add_development_dependency 'rake', '~> 13.0'
+
+  spec.add_development_dependency 'debug', '~> 1.8'
+  spec.add_development_dependency 'rspec', '~> 3.12'
+  spec.add_development_dependency 'rubocop', '~> 1.55'
+  spec.add_development_dependency 'rubocop-performance', '~> 1.18'
+  spec.add_development_dependency 'rubocop-rails', '~> 2.20'
+  spec.add_development_dependency 'rubocop-rspec', '~> 2.22'
+  spec.add_development_dependency 'simplecov', '>= 0.22.0'
 end
