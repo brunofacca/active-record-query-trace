@@ -1,3 +1,11 @@
+## 1.8.2 (2023-07-27)
+
+* Fix Rubocop offenses.
+
+* Remove older Ruby and Rails versions from the CI and add newer versions.
+
+* Update dependencies.
+
 ## 1.8.1 (2023-07-23)
 
 * Fix collisions with other gems in `Rails.backtrace_cleaner`
