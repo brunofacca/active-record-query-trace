@@ -48,13 +48,14 @@ There are three levels of debug.
 
 - `:app` - includes only application trace lines (files in the `Rails.root` directory);
 - `:rails` - includes all trace lines except the ones from the application (all files except those in `Rails.root`).
+- `:rails_backtrace_cleaner` - use a dup of the backtrace cleaner configured in `Rails.backtrace_cleaner`.
 - `:full` - full backtrace (includes all files), useful for debugging gems.
 
 ```ruby
 ActiveRecordQueryTrace.level = :app # default
 ```
 
-If you need more control you can provide a custom bactrace cleaner using the `:custom` level. For example:
+If you need more control you can provide a custom backtrace cleaner using the `:custom` level. For example:
 
 ```ruby
 ActiveRecordQueryTrace.level = :custom
