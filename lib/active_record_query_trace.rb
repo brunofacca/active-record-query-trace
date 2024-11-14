@@ -53,6 +53,10 @@ module ActiveRecordQueryTrace
     # The following code creates a brand new BacktraceCleaner just for the use of this Gem
     # avoiding the dealing with Rails.backtrace_cleaner
     def setup_backtrace_cleaner
+      if ActiveRecordQueryTrace.level == :rails_backtrace_cleaner
+        cleaner = Rails.backtrace_cleaner.dup
+        return
+      end
       cleaner = Rails::BacktraceCleaner.new
       remove_filters_and_silencers cleaner
       cleaner.instance_variable_set :@root, Rails.root.to_s if cleaner.instance_variable_get(:@root) == '/'
