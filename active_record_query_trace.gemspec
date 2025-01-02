@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = spec.summary
   spec.homepage      = 'https://github.com/brunofacca/active-record-query-trace'
   spec.license       = 'MIT'
-  spec.required_ruby_version = '>= 2.7', '< 3.4'
+  spec.required_ruby_version = '>= 2.7', '< 3.5'
 
   spec.metadata['homepage_uri'] = spec.homepage
 
