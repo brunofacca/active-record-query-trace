@@ -1,3 +1,7 @@
+## 1.8.3 (2025-01-03)
+
+* Add support for Ruby 3.4
+
 ## 1.8.2 (2023-07-27)
 
 * Fix Rubocop offenses.
