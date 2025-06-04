@@ -54,7 +54,7 @@ There are three levels of debug.
 ActiveRecordQueryTrace.level = :app # default
 ```
 
-If you need more control you can provide a custom bactrace cleaner using the `:custom` level. For example:
+If you need more control you can provide a custom backtrace cleaner using the `:custom` level. For example:
 
 ```ruby
 ActiveRecordQueryTrace.level = :custom
