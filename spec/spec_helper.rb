@@ -6,6 +6,7 @@ SimpleCov.start
 $LOAD_PATH.unshift File.expand_path('lib', __dir__)
 
 require 'active_record'
+require 'rails/backtrace_cleaner'
 require 'active_record_query_trace'
 require 'db/setup'
 require 'debug'
