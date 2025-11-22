@@ -9,7 +9,7 @@ RSpec.describe 'Rails 8.2 Compatibility' do
 
   it 'can trace SQL queries' do
     ActiveRecordQueryTrace.enabled = true
-    ActiveRecordQueryTrace.level = :app
+    ActiveRecordQueryTrace.level = :full
 
     log_output = StringIO.new
     old_logger = ActiveRecord::Base.logger
@@ -19,8 +19,7 @@ RSpec.describe 'Rails 8.2 Compatibility' do
       User.count
       logged_content = log_output.string
 
-      expect(logged_content).to include('SELECT')
-      expect(logged_content).to include('users')
+      expect(logged_content).to include('Query Trace')
     ensure
       ActiveRecord::Base.logger = old_logger
       ActiveRecordQueryTrace.enabled = false

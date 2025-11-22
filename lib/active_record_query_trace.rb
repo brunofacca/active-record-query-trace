@@ -77,7 +77,25 @@ module ActiveRecordQueryTrace
     end
   end
 
-  class CustomLogSubscriber < ActiveRecord::LogSubscriber # rubocop:disable Metrics/ClassLength
+  # Rails 8.2+ moved to EventReporter architecture, detect which to use
+  RAILS_EVENT_REPORTER = defined?(ActiveSupport::EventReporter::LogSubscriber)
+  BASE_LOG_SUBSCRIBER = if RAILS_EVENT_REPORTER
+                          ActiveSupport::EventReporter::LogSubscriber
+                        else
+                          ActiveRecord::LogSubscriber
+                        end
+
+  class CustomLogSubscriber < BASE_LOG_SUBSCRIBER # rubocop:disable Metrics/ClassLength
+    # Rails 8.2+ requires explicit namespace declaration
+    self.namespace = 'active_record' if RAILS_EVENT_REPORTER
+
+    # Rails 8.2+ requires default_logger implementation
+    if RAILS_EVENT_REPORTER
+      def self.default_logger
+        ActiveRecord::Base.logger
+      end
+    end
+
     def initialize
       super
       ActiveRecordQueryTrace.enabled = false
@@ -90,15 +108,24 @@ module ActiveRecordQueryTrace
     end
 
     def sql(event)
-      payload = event.payload
+      # Rails 8.2+ passes events as hashes, older Rails as objects
+      payload = RAILS_EVENT_REPORTER ? event[:payload] : event.payload
       return unless display_backtrace?(payload)
       trace = fully_formatted_trace # Memoize
       debug(trace) if trace.present?
     end
 
+    # Rails 8.2+ uses event_log_level, older Rails uses subscribe_log_level
+    if RAILS_EVENT_REPORTER
+      event_log_level :sql, :debug
+    else
+      subscribe_log_level :sql, :debug
+    end
+
     delegate :default_cleaner, to: ActiveRecordQueryTrace
 
-    attach_to :active_record
+    # Rails < 8.2 uses attach_to
+    attach_to :active_record unless RAILS_EVENT_REPORTER
 
     private
 
@@ -217,6 +244,28 @@ module ActiveRecordQueryTrace
   end
 end
 
+# Rails 8.2+ uses event_reporter.subscribe instead of attach_to
+# However, ActiveRecord still publishes via Notifications, so we need to subscribe there
+if ActiveRecordQueryTrace::RAILS_EVENT_REPORTER
+  subscriber_instance = ActiveRecordQueryTrace::CustomLogSubscriber.new
+
+  # Subscribe to Notifications for sql.active_record events
+  ActiveSupport::Notifications.subscribe('sql.active_record') do |event_name, started, finished, unique_id, payload|
+    # Convert Notifications event to EventReporter format
+    event_hash = {
+      name: 'active_record.sql',  # Reversed format for EventReporter
+      payload: payload,
+      tags: {},
+      context: {},
+      timestamp: started.to_f * 1_000_000_000,  # Convert to nanoseconds
+      source_location: {}
+    }
+
+    # Call the subscriber's sql method directly with EventReporter format
+    subscriber_instance.sql(event_hash)
+  end
+end
+
 # The following code is used to suppress specific entries from the log. The
 # "around alias" technique is used to allow `ActiveSupport::LogSubscriber#debug`
 # to be overwritten while preserving the original version, which can still be
@@ -232,7 +281,14 @@ end
 # enough to ensure it is not a write query.
 #
 # TODO: move to a separate file.
-ActiveSupport::LogSubscriber.class_eval do
+# Patch the correct LogSubscriber class based on Rails version
+log_subscriber_class = if ActiveRecordQueryTrace::RAILS_EVENT_REPORTER
+                         ActiveSupport::EventReporter::LogSubscriber
+                       else
+                         ActiveSupport::LogSubscriber
+                       end
+
+log_subscriber_class.class_eval do
   alias_method :original_debug, :debug
 
   def debug(*args, &block)

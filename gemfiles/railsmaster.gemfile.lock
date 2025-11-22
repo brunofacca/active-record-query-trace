@@ -261,8 +261,9 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
-    sqlite3 (1.7.3)
+    sqlite3 (2.8.0)
       mini_portile2 (~> 2.8.0)
+    sqlite3 (2.8.0-arm64-darwin)
     stringio (3.1.8)
     thor (1.4.0)
     timeout (0.4.4)
@@ -295,7 +296,7 @@ DEPENDENCIES
   rubocop-rails (~> 2.20)
   rubocop-rspec (~> 2.22)
   simplecov (>= 0.22.0)
-  sqlite3 (~> 1.4)
+  sqlite3 (>= 2.1)
 
 BUNDLED WITH
    2.7.2
