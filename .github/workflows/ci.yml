@@ -1,0 +1,44 @@
+name: Ruby CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ruby-versions:
+    uses: ruby/actions/.github/workflows/ruby_versions.yml@master
+    with:
+      min_version: 3.3
+      engine: cruby
+
+  test:
+    needs: ruby-versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ruby-version: ${{ fromJson(needs.ruby-versions.outputs.versions) }}
+        gemfile:
+          - rails_7.2
+          - rails_8.0
+          - rails_main
+        exclude:
+          - ruby-version: 3.3
+            gemfile: rails_8.0
+          - ruby-version: 3.3
+            gemfile: rails_main
+          - ruby-version: head
+            gemfile: rails_7.2
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Run tests
+        run: bundle exec rake
