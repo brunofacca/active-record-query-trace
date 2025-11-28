@@ -8,4 +8,4 @@ gemspec
 gem 'rails', '~> 7.0'
 gem 'sqlite3', '~> 1.4'
 
-gem "appraisal", "~> 2.5"
+gem "appraisal"
