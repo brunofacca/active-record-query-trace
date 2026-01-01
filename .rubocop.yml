@@ -1,10 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
-require:
-  - rubocop-rspec
 plugins:
   - rubocop-performance
   - rubocop-rails
+  - rubocop-rspec
 
 inherit_mode:
   merge:
