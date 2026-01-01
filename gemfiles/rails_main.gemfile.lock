@@ -106,7 +106,7 @@ PATH
       activerecord (>= 6.0.0)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     action_text-trix (2.1.15)
       railties
