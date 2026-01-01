@@ -294,10 +294,10 @@ DEPENDENCIES
   rails (~> 8.0.3)
   rake (~> 13.0)
   rspec (~> 3.12)
-  rubocop (~> 1.55)
-  rubocop-performance (~> 1.18)
-  rubocop-rails (~> 2.20)
-  rubocop-rspec (~> 2.22)
+  rubocop
+  rubocop-performance
+  rubocop-rails
+  rubocop-rspec
   simplecov (>= 0.22.0)
   sqlite3 (~> 1.4)
 
