@@ -155,6 +155,7 @@ GEM
       net-smtp
     marcel (1.1.0)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (6.0.1)
       prism (~> 1.5)
     net-imap (0.6.2)
@@ -167,21 +168,12 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     nio4r (2.7.5)
-    nokogiri (1.19.0-aarch64-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.0-aarch64-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.19.0-arm-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.0-arm-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.19.0-arm64-darwin)
+    nokogiri (1.19.0)
+      mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nokogiri (1.19.0-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.19.0-x86_64-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.0-x86_64-linux-musl)
       racc (~> 1.4)
     parallel (1.27.0)
     parser (3.3.10.0)
@@ -277,9 +269,8 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
-    sqlite3 (1.7.3-aarch64-linux)
-    sqlite3 (1.7.3-arm-linux)
-    sqlite3 (1.7.3-arm64-darwin)
+    sqlite3 (1.7.3)
+      mini_portile2 (~> 2.8.0)
     sqlite3 (1.7.3-x86_64-darwin)
     sqlite3 (1.7.3-x86_64-linux)
     stringio (3.2.0)
@@ -300,6 +291,8 @@ GEM
     zeitwerk (2.7.4)
 
 PLATFORMS
+  ruby
+  x86_64-darwin-23
   x86_64-linux
   x86_64-linux-gnu
 
