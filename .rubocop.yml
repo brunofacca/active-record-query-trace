@@ -1,10 +1,10 @@
 inherit_from: .rubocop_todo.yml
 
 require:
+  - rubocop-rspec
+plugins:
   - rubocop-performance
   - rubocop-rails
-  - rubocop-rspec
-
 
 inherit_mode:
   merge:
@@ -15,7 +15,7 @@ AllCops:
   TargetRubyVersion: 2.7
   NewCops: enable
   Exclude:
-    - 'gemfiles/**/*'
+    - 'gemfiles/*'
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
