@@ -113,7 +113,7 @@ GIT
 PATH
   remote: ..
   specs:
-    active_record_query_trace (1.8.3)
+    active_record_query_trace (1.9)
       activerecord (>= 6.0.0)
 
 GEM
@@ -340,7 +340,7 @@ CHECKSUMS
   actionpack (8.2.0.alpha)
   actiontext (8.2.0.alpha)
   actionview (8.2.0.alpha)
-  active_record_query_trace (1.8.3)
+  active_record_query_trace (1.9)
   activejob (8.2.0.alpha)
   activemodel (8.2.0.alpha)
   activerecord (8.2.0.alpha)

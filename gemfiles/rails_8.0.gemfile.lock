@@ -11,7 +11,7 @@ GIT
 PATH
   remote: ..
   specs:
-    active_record_query_trace (1.8.3)
+    active_record_query_trace (1.9)
       activerecord (>= 6.0.0)
 
 GEM
@@ -330,7 +330,7 @@ CHECKSUMS
   actionpack (8.0.4) sha256=0364c7582f32c8f404725fa30d3f6853f834c5f4964afd4a072b848c8a23cddb
   actiontext (8.0.4) sha256=40b3970268ac29b865685456b2586df5052d068fd0cb04acb2291e737cea2340
   actionview (8.0.4) sha256=5bd3c41ee7a59e14cf062bb5e4ee53c9a253d12fc13c8754cae368012e1a1648
-  active_record_query_trace (1.8.3)
+  active_record_query_trace (1.9)
   activejob (8.0.4) sha256=cbc8a85d0e168cb90a5629c8a36fe2d08ba840103d3aed3eee0c7beb784fccce
   activemodel (8.0.4) sha256=8f4e4fac3cd104b1bf30419c3745206f6f724c0e2902a939b4113f4c90730dfd
   activerecord (8.0.4) sha256=bda32c171799e5ca5460447d3b7272ed14447244e2497abf2107f87fc44cbf32
