@@ -1,3 +1,13 @@
+## 1.9 (2026-01-19)
+
+* Remove Ruby version pin, allowing the gem to work with Ruby versions > 3.5.
+
+* Updated minimum supported Ruby version to 3.2
+
+* Migrate CI from Travis to GitHub Actions.
+
+* Tested with Rails 7.2.3 and Ruby 4.0.
+
 ## 1.8.3 (2025-01-03)
 
 * Add support for Ruby 3.4
